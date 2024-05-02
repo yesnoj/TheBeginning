@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/Users/francescoprochilo/Documents/Arduino/libraries/lvgl",
+                "/Users/francescoprochilo/Documents/Arduino/libraries/LovyanGFX/src",
+                "/Users/francescoprochilo/Documents/Arduino/libraries/DallasTemperature",
+                "/Users/francescoprochilo/Documents/Arduino/libraries/OneWire"
+            ],
+            "defines": [],
+            "macFrameworkPath": [],
+            "compilerPath": "/Users/francescoprochilo/.platformio/packages/toolchain-xtensa-esp32s3/bin/xtensa-esp32s3-elf-gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++14",
+            "intelliSenseMode": "macos-gcc-x86"
+        }
+    ],
+    "version": 4
+}
