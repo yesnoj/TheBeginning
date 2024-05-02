@@ -200,6 +200,7 @@ void stepDetail(void)
                   lv_obj_add_event_cb(stepDetailNamelTextArea, event_stepDetail, LV_EVENT_ALL, stepDetailNamelTextArea);
                   lv_obj_add_state(stepDetailNamelTextArea, LV_STATE_FOCUSED); 
                   lv_obj_set_style_bg_color(stepDetailNamelTextArea, lv_palette_darken(LV_PALETTE_GREY, 3), 0);
+                  lv_obj_set_style_border_color(stepDetailNamelTextArea, lv_color_hex(WHITE), 0);
 
 
 
@@ -224,6 +225,7 @@ void stepDetail(void)
                   lv_obj_add_state(stepDetailMinTextArea, LV_STATE_FOCUSED); 
                   lv_obj_set_style_bg_color(stepDetailMinTextArea, lv_palette_darken(LV_PALETTE_GREY, 3), 0);
                   lv_obj_set_style_text_align(stepDetailMinTextArea , LV_TEXT_ALIGN_CENTER, 0);
+                  lv_obj_set_style_border_color(stepDetailMinTextArea, lv_color_hex(WHITE), 0);
 
 
                   stepDurationMinLabel = lv_label_create(stepDurationContainer);         
@@ -240,6 +242,7 @@ void stepDetail(void)
                   lv_obj_add_state(stepDetailSecTextArea, LV_STATE_FOCUSED); 
                   lv_obj_set_style_bg_color(stepDetailSecTextArea, lv_palette_darken(LV_PALETTE_GREY, 3), 0);
                   lv_obj_set_style_text_align(stepDetailSecTextArea , LV_TEXT_ALIGN_CENTER, 0);
+                  lv_obj_set_style_border_color(stepDetailSecTextArea, lv_color_hex(WHITE), 0);
 
 
     

@@ -265,7 +265,7 @@ void processDetail(void)
 
                   processTempControlContainer = lv_obj_create(processInfoContainer);
                   lv_obj_remove_flag(processTempControlContainer, LV_OBJ_FLAG_SCROLLABLE); 
-                  lv_obj_align(processTempControlContainer, LV_ALIGN_TOP_LEFT, -15, -15);
+                  lv_obj_align(processTempControlContainer, LV_ALIGN_TOP_LEFT, -15, -17);
                   lv_obj_set_size(processTempControlContainer, 205, 40); 
                   //lv_obj_set_style_border_color(processTempControlContainer, lv_color_hex(GREEN_DARK), 0);
                   lv_obj_set_style_border_opa(processTempControlContainer, LV_OPA_TRANSP, 0);
@@ -287,8 +287,8 @@ void processDetail(void)
 
                   processTempContainer = lv_obj_create(processInfoContainer);
                   lv_obj_remove_flag(processTempContainer, LV_OBJ_FLAG_SCROLLABLE); 
-                  lv_obj_align(processTempContainer, LV_ALIGN_TOP_LEFT, -15, 25);
-                  lv_obj_set_size(processTempContainer, 205, 40); 
+                  lv_obj_align(processTempContainer, LV_ALIGN_TOP_LEFT, -15, 20);
+                  lv_obj_set_size(processTempContainer, 205, 45); 
                   //lv_obj_set_style_border_color(processTempContainer, lv_color_hex(GREEN_DARK), 0);
                   lv_obj_set_style_border_opa(processTempContainer, LV_OPA_TRANSP, 0);   
 
@@ -306,8 +306,10 @@ void processDetail(void)
                           lv_obj_add_state(processTempTextArea, LV_STATE_FOCUSED); /*To be sure the cursor is visible*/
                           lv_obj_set_style_bg_color(processTempTextArea, lv_palette_darken(LV_PALETTE_GREY, 3), 0);
                           lv_obj_set_style_text_align(processTempTextArea , LV_TEXT_ALIGN_CENTER, 0);
-                          lv_style_set_text_font(&textAreaStyle, &lv_font_montserrat_22);
+                          lv_style_set_text_font(&textAreaStyle, &lv_font_montserrat_18);
                           lv_obj_add_style(processTempTextArea, &textAreaStyle, LV_PART_MAIN);
+                          lv_obj_set_style_border_color(processTempTextArea, lv_color_hex(WHITE), 0);
+
 
                           processTempUnitLabel = lv_label_create(processTempContainer);         
                           lv_label_set_text(processTempUnitLabel, celsius_text); 
@@ -318,7 +320,7 @@ void processDetail(void)
                   processToleranceContainer = lv_obj_create(processInfoContainer);
                   lv_obj_remove_flag(processToleranceContainer, LV_OBJ_FLAG_SCROLLABLE); 
                   lv_obj_align(processToleranceContainer, LV_ALIGN_TOP_LEFT, -15, 65);
-                  lv_obj_set_size(processToleranceContainer, 205, 40); 
+                  lv_obj_set_size(processToleranceContainer, 205, 45); 
                   //lv_obj_set_style_border_color(processToleranceContainer, lv_color_hex(GREEN_DARK), 0);
                   lv_obj_set_style_border_opa(processToleranceContainer, LV_OPA_TRANSP, 0);   
 
@@ -332,12 +334,15 @@ void processDetail(void)
                           lv_textarea_set_placeholder_text(processToleranceTextArea, processDetailTempPlaceHolder_text);
                           lv_obj_align(processToleranceTextArea, LV_ALIGN_LEFT_MID, 100, 0);
                           lv_obj_set_width(processToleranceTextArea, 60);
+
                           lv_obj_add_event_cb(processToleranceTextArea, event_processDetail, LV_EVENT_ALL, processToleranceTextArea);
                           lv_obj_add_state(processToleranceTextArea, LV_STATE_FOCUSED); /*To be sure the cursor is visible*/
                           lv_obj_set_style_bg_color(processToleranceTextArea, lv_palette_darken(LV_PALETTE_GREY, 3), 0);
                           lv_obj_set_style_text_align(processToleranceTextArea , LV_TEXT_ALIGN_CENTER, 0);
-                          lv_style_set_text_font(&textAreaStyle, &lv_font_montserrat_22);
+                          //lv_style_set_text_font(&textAreaStyle, &lv_font_montserrat_18);
                           lv_obj_add_style(processToleranceTextArea, &textAreaStyle, LV_PART_MAIN);
+                          lv_obj_set_style_border_color(processToleranceTextArea, lv_color_hex(WHITE), 0);
+
 
                           processTempUnitLabel = lv_label_create(processToleranceContainer);         
                           lv_label_set_text(processTempUnitLabel, celsius_text); 
@@ -347,8 +352,8 @@ void processDetail(void)
 
                   processTotalTimeContainer = lv_obj_create(processInfoContainer);
                   lv_obj_remove_flag(processTotalTimeContainer, LV_OBJ_FLAG_SCROLLABLE); 
-                  lv_obj_align(processTotalTimeContainer, LV_ALIGN_TOP_LEFT, -15, 100);
-                  lv_obj_set_size(processTotalTimeContainer, 205, 40); 
+                  lv_obj_align(processTotalTimeContainer, LV_ALIGN_TOP_LEFT, -15, 110);
+                  lv_obj_set_size(processTotalTimeContainer, 205, 30); 
                   //lv_obj_set_style_border_color(processTotalTimeContainer, lv_color_hex(GREEN_DARK), 0);
                   lv_obj_set_style_border_opa(processTotalTimeContainer, LV_OPA_TRANSP, 0);   
 

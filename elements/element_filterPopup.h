@@ -149,6 +149,7 @@ void filterPopupCreate (){
           lv_obj_add_event_cb(mBoxNameTextArea, event_filterMBox, LV_EVENT_ALL, mBoxNameTextArea);
           lv_obj_add_state(mBoxNameTextArea, LV_STATE_FOCUSED); /*To be sure the cursor is visible*/
           lv_obj_set_style_bg_color(mBoxNameTextArea, lv_palette_darken(LV_PALETTE_GREY, 3), 0);
+          lv_obj_set_style_border_color(mBoxNameTextArea, lv_color_hex(WHITE), 0);
 
 
       //CHOOSE COLOR/B&W/Both
