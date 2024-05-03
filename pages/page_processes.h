@@ -47,7 +47,7 @@ static void event_tabProcesses(lv_event_t * e)
   if(obj == processFilterButton){
     if(code == LV_EVENT_CLICKED) {
         LV_LOG_USER("New Filter Creation popup");
-        if(mBoxParent == NULL){
+        if(mBoxFilterPopupParent == NULL){
           filterPopupCreate();
         }
         else{
@@ -55,7 +55,7 @@ static void event_tabProcesses(lv_event_t * e)
           lv_obj_remove_state(mBoxOnlyPreferredSwitch, LV_STATE_CHECKED);
           lv_obj_remove_state(mBoxSelectColorRadioButton, LV_STATE_CHECKED);
           lv_obj_remove_state(mBoxSelectBnWRadioButton, LV_STATE_CHECKED);
-          lv_obj_remove_flag(mBoxParent, LV_OBJ_FLAG_HIDDEN);
+          lv_obj_remove_flag(mBoxFilterPopupParent, LV_OBJ_FLAG_HIDDEN);
           }
     }
   }

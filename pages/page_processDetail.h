@@ -63,6 +63,9 @@ static uint8_t isColor = 0;
 static uint8_t isSaved = 0;
 
 
+
+static char * optionstest;
+
 static void event_processDetail_style_delete(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
@@ -127,8 +130,7 @@ static void event_processDetail(lv_event_t * e)
     }
     if(data == processDeleteButton){
         stepCounter = 0;
-        lv_msgbox_close(mboxCont);
-        lv_obj_delete(mboxCont);
+        messagePopupCreate(deletePopupTitle_text,deletePopupBody_text, processDetailParent);
         LV_LOG_USER("Pressed processDeleteButton");
     }
     if(data == processRunButton){
@@ -140,10 +142,14 @@ static void event_processDetail(lv_event_t * e)
     if(data == processNewStepButton){
         LV_LOG_USER("Pressed processNewStepButton");
         //stepElementCreate(processStepsContainer);
-        stepDetail();
+        stepDetail(processStepsContainer);
     }
 
 
+  }
+
+  if(code == LV_EVENT_LONG_PRESSED_REPEAT){
+    
   }
 
   if(code == LV_EVENT_VALUE_CHANGED) {
@@ -155,11 +161,11 @@ static void event_processDetail(lv_event_t * e)
   if(code == LV_EVENT_FOCUSED) {
       if(data == processTempTextArea){
           LV_LOG_USER("Set Temperature");
-          temperaturePopupCreate(tempCelsiusOptions,processTempTextArea);
+          rollerPopupCreate(tempCelsiusOptions,tuneTempPopupTitle_text,processTempTextArea);
       }
       if(data == processToleranceTextArea){
           LV_LOG_USER("Set Tolerance");
-          temperaturePopupCreate(tempCelsiusToleranceOptions,processToleranceTextArea);
+          rollerPopupCreate(tempCelsiusToleranceOptions,tuneTempPopupTitle_text,processToleranceTextArea);
       }
   }
 
@@ -181,12 +187,11 @@ void processDetail(void)
   lv_obj_set_size(processDetailParent, LV_PCT(100), LV_PCT(100));
   
   lv_style_init(&textAreaStyle);
-   
+  
   /*********************
   *    PAGE ELEMENTS
   *********************/
-
-
+   
       processDetailContainer = lv_obj_create(processDetailParent);
       lv_obj_align(processDetailContainer, LV_ALIGN_CENTER, 0, 0);
       lv_obj_set_size(processDetailContainer, LV_PCT(100), LV_PCT(100));
@@ -417,7 +422,7 @@ void processDetail(void)
 
                           processDeleteLabel = lv_label_create(processDeleteButton);         
                           lv_label_set_text(processDeleteLabel, trash_Icon); 
-                          lv_obj_set_style_text_font(processDeleteLabel, &FilMachineFontIcons_30, 0);              
+                          lv_obj_set_style_text_font(processDeleteLabel, &FilMachineFontIcons_20, 0);              
                           lv_obj_align(processDeleteLabel, LV_ALIGN_CENTER, 0, 0);
                           lv_obj_add_flag(processDeleteLabel, LV_OBJ_FLAG_CLICKABLE);
 
@@ -429,7 +434,7 @@ void processDetail(void)
 
                           processRunLabel = lv_label_create(processRunButton);         
                           lv_label_set_text(processRunLabel, play_Icon); 
-                          lv_obj_set_style_text_font(processRunLabel, &FilMachineFontIcons_30, 0);              
+                          lv_obj_set_style_text_font(processRunLabel, &FilMachineFontIcons_20, 0);              
                           lv_obj_align(processRunLabel, LV_ALIGN_CENTER, 0, 0);
                           lv_obj_add_flag(processRunLabel, LV_OBJ_FLAG_CLICKABLE);
 

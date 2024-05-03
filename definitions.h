@@ -179,7 +179,7 @@ char rinse_Icon         [14] = {"\xEF\x81\x83"};
 char multiRinse_Icon   [14] = {"\xEF\x86\xB8"};
 char edit_Icon         [14] = {"\xEF\x81\x84"};
 char copy_Icon         [14] = {"\xEF\x83\x85"};
-char ceckStep_Icon     [14] = {"\xEF\x80\x8C"};
+char checkStep_Icon    [14] = {"\xEF\x80\x8C"};
 char arrowStep_Icon    [14] = {"\xEF\x81\xA1"};
 char dotStep_Icon      [14] = {"\xEF\x86\x92"};
 char clock_Icon        [14] = {"\xEF\x80\x97"};
@@ -293,6 +293,8 @@ char stepDetailPlaceHolder_text [24] = {"Enter name for new step"};
 char stepDetailSave_text [5] = {"Save"};
 char stepDetailCancel_text [7] = {"Cancel"};
 char stepDetailCurrentTemp_text [12] = {"Current   :"};
+lv_obj_t * stepDetailMinTextArea;
+lv_obj_t * stepDetailSecTextArea;
 
 const char * stepTypeList = "Chemistry\n"
                             "Rinse\n"
@@ -307,17 +309,24 @@ uint8_t stepType = 0;
 uint8_t stepSource = 0;
 uint8_t discardAfter = 0;
 double stepSourceTemp = 20.8;
+lv_obj_t * stepDetailNamelTextArea;
 
 /*********************
 * Popup elements
 *********************/
-const char * minutesOptions = "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31\n32\n33\n34\n35\n36\n37\n38\n39\n40\n41\n42\n43\n44\n45\n46\n47\n48\n49\n50\n51\n52\n53\n54\n55\n56\n57\n58\n59";       
-const char * tempCelsiusOptions = "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31\n32\n33\n34\n35\n36\n37\n38\n39\n40";       
-const char * tempCelsiusToleranceOptions = "0.1\n0.2\n0.3\n0.4\n0.5";     
+char * minutesOptions;
+char * secondsOptions;  
+char * tempCelsiusOptions;       
+char * tempCelsiusToleranceOptions;  
 
+char setMinutesPopupTitle_text [16] = {"Set minutes"};
+char setSecondsPopupTitle_text [16] = {"Set seconds"};
 char tuneTempPopupTitle_text [16] = {"Set temperature"};
-char tuneTempPopupButton_text [4] = {"SET"};
+char tuneRollerButton_text [4] = {"SET"};
 char messagePopupDetailTitle_text [19] = {"Detail information"};
+char deleteButton_text [7] = {"Delete"};
+char deletePopupTitle_text [15] = {"Delete element"};
+char deletePopupBody_text [45] = {"Are you sure to delete the selected element?"};
 
 char rollerElementSelected [10];
 uint8_t rolleTempSelected = 0;
@@ -377,7 +386,7 @@ lv_obj_t * messageBox;
 lv_point_precise_t mBoxTitleLine_points[] = { {0, 0}, {200 , 0}};
 lv_style_t style_mBoxTitleLine;
 lv_obj_t * mBoxTitleLine;
-lv_obj_t * mBoxParent = NULL;
+lv_obj_t * mBoxFilterPopupParent = NULL;
 lv_obj_t * mBoxNameTextArea;
 lv_obj_t * mBoxSelectColorRadioButton;
 lv_obj_t * mBoxSelectBnWRadioButton;
@@ -389,14 +398,20 @@ lv_style_t style_mBoxPopupTitleLine;
 lv_obj_t * mBoxPopupTitleLine;
 lv_obj_t * mBoxPopupParent = NULL;
 
-lv_style_t style_mBoxTempPopupTitleLine;
-lv_obj_t * mBoxTempPopupTitleLine;
-lv_obj_t * mBoxTempPopupParent = NULL;
+lv_style_t style_mBoxRollerTitleLine;
+lv_obj_t * mBoxRollerTitleLine;
+lv_obj_t * mBoxRollerParent = NULL;
 
 lv_style_t style_mBoxStepPopupTitleLine;
 lv_obj_t * mBoxStepPopupTitleLine;
 
+lv_obj_t * keyBoardParent;
+lv_obj_t * keyboardFilter = NULL;
+lv_obj_t * keyboardStep = NULL;
+lv_obj_t * keyboardProcess = NULL;
+
 lv_obj_t * keyboard;
+
 lv_obj_t * keyboard_textArea;
 
 lv_obj_t * processDetailParent = NULL;

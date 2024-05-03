@@ -1,3 +1,4 @@
+#include "misc/lv_event.h"
 #include <sys/_stdint.h>
 #include "misc/lv_palette.h"
 #include "core/lv_obj_pos.h"
@@ -45,23 +46,31 @@ static void event_stepElement(lv_event_t * e){
   lv_event_code_t code = lv_event_get_code(e);
   lv_obj_t * obj = (lv_obj_t *)lv_event_get_target(e);
  
+  
 
   if(obj == stepElementSummary){
       if(code == LV_EVENT_CLICKED) {    
         LV_LOG_USER("Process Element Details");
+        //stepDetail(stepElement); //won't work, cause definition in pages.h
       }
+      if(code == LV_EVENT_LONG_PRESSED_REPEAT) {    
+        if(mBoxPopupParent == NULL){
+        LV_LOG_USER("Long press element");
+        messagePopupCreate(deletePopupTitle_text,deletePopupBody_text, stepElement);
+      }
+    }
   }
 }
 
 
-void stepElementCreate(lv_obj_t * referenceProcess){
+void stepElementCreate(lv_obj_t * stepContainer){
   /*********************
   *    PAGE HEADER
   *********************/
   LV_LOG_USER("Processes Creation");
   
 
-  stepElement = lv_obj_create(referenceProcess);
+  stepElement = lv_obj_create(stepContainer);
   lv_obj_set_pos(stepElement, -13, -13 + ((stepCounter * 70)));                           
   lv_obj_set_size(stepElement, 240, 70);
   lv_obj_remove_flag(stepElement, LV_OBJ_FLAG_SCROLLABLE); 
@@ -76,7 +85,7 @@ void stepElementCreate(lv_obj_t * referenceProcess){
         lv_obj_align(stepElementSummary, LV_ALIGN_TOP_LEFT, -16, -16);
         lv_obj_remove_flag(stepElementSummary, LV_OBJ_FLAG_SCROLLABLE);  
         lv_obj_add_event_cb(stepElementSummary, event_stepElement, LV_EVENT_CLICKED, stepElementSummary);  
-
+        lv_obj_add_event_cb(stepElementSummary, event_stepElement, LV_EVENT_LONG_PRESSED_REPEAT, stepElementSummary);
         lv_style_init(&stepStyle);
 
         lv_style_set_bg_opa(&stepStyle, LV_OPA_60);

@@ -48,7 +48,7 @@ void event_filterMBox(lv_event_t * e){
         if(obj == mBoxApplyFilterButton){
           LV_LOG_USER("Apply BUTTON");        
           lv_style_reset(&style_mBoxTitleLine);
-          lv_obj_add_flag(mBoxParent, LV_OBJ_FLAG_HIDDEN);
+          lv_obj_add_flag(mBoxFilterPopupParent, LV_OBJ_FLAG_HIDDEN);
           lv_obj_remove_state(mBoxSelectColorRadioButton, LV_STATE_CHECKED);
           lv_obj_remove_state(mBoxSelectBnWRadioButton, LV_STATE_CHECKED);
           lv_obj_remove_state(mBoxOnlyPreferredSwitch, LV_STATE_CHECKED);
@@ -62,18 +62,22 @@ void event_filterMBox(lv_event_t * e){
         }
       }
   }
-
+/*
   if(obj == mBoxNameTextArea){
-     if(code == LV_EVENT_FOCUSED) {
+     if(code == LV_EVENT_FOCUSED || code == LV_EVENT_CLICKED) {
+        LV_LOG_USER("LV_EVENT_FOCUSED on mBoxNameTextArea");
+        //lv_obj_set_user_data(keyboard,mBoxFilterPopupParent);
         lv_obj_add_flag(mboxParent, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_remove_flag(lv_obj_get_parent(keyboard), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_remove_flag(keyBoardParent, LV_OBJ_FLAG_HIDDEN);
       }
 
       if(code == LV_EVENT_DEFOCUSED) {
+        LV_LOG_USER("LV_EVENT_DEFOCUSED on mBoxNameTextArea");
         lv_obj_remove_flag(mboxParent, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(lv_obj_get_parent(keyboard), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(keyBoardParent, LV_OBJ_FLAG_HIDDEN);
       }
   }
+  */
 
   if(obj == mBoxSelectColorRadioButton || obj == mBoxSelectBnWRadioButton){
     if(code == LV_EVENT_VALUE_CHANGED) {
@@ -99,14 +103,14 @@ void filterPopupCreate (){
   /*********************
    *    PAGE ELEMENTS
    *********************/
-  if (mBoxParent == NULL)
+  if (mBoxFilterPopupParent == NULL)
   {
-      mBoxParent = lv_obj_class_create_obj(&lv_msgbox_backdrop_class, lv_layer_top());
-      lv_obj_class_init_obj(mBoxParent);
-      lv_obj_remove_flag(mBoxParent, LV_OBJ_FLAG_IGNORE_LAYOUT);
-      lv_obj_set_size(mBoxParent, LV_PCT(100), LV_PCT(100));
+      mBoxFilterPopupParent = lv_obj_class_create_obj(&lv_msgbox_backdrop_class, lv_layer_top());
+      lv_obj_class_init_obj(mBoxFilterPopupParent);
+      lv_obj_remove_flag(mBoxFilterPopupParent, LV_OBJ_FLAG_IGNORE_LAYOUT);
+      lv_obj_set_size(mBoxFilterPopupParent, LV_PCT(100), LV_PCT(100));
 
-      mBoxContainer = lv_obj_create(mBoxParent);
+      mBoxContainer = lv_obj_create(mBoxFilterPopupParent);
       lv_obj_align(mBoxContainer, LV_ALIGN_CENTER, 0, 0);
       lv_obj_set_size(mBoxContainer, 320, 240); 
       lv_obj_remove_flag(mBoxContainer, LV_OBJ_FLAG_SCROLLABLE); 
@@ -146,7 +150,8 @@ void filterPopupCreate (){
           lv_textarea_set_placeholder_text(mBoxNameTextArea, filterPopupNamePlaceHolder_text);
           lv_obj_align(mBoxNameTextArea, LV_ALIGN_LEFT_MID, 65, 0);
           lv_obj_set_width(mBoxNameTextArea, 215);
-          lv_obj_add_event_cb(mBoxNameTextArea, event_filterMBox, LV_EVENT_ALL, mBoxNameTextArea);
+          //lv_obj_add_event_cb(mBoxNameTextArea, event_filterMBox, LV_EVENT_ALL, mBoxNameTextArea);
+          lv_obj_add_event_cb(mBoxNameTextArea, kb_event_cb, LV_EVENT_ALL, mBoxNameTextArea);
           lv_obj_add_state(mBoxNameTextArea, LV_STATE_FOCUSED); /*To be sure the cursor is visible*/
           lv_obj_set_style_bg_color(mBoxNameTextArea, lv_palette_darken(LV_PALETTE_GREY, 3), 0);
           lv_obj_set_style_border_color(mBoxNameTextArea, lv_color_hex(WHITE), 0);
@@ -191,24 +196,7 @@ void filterPopupCreate (){
 
           mBoxSelectBnWRadioButton = create_radiobutton(mBoxSelectBnWRadioButton, "", 25, 0, 27, &lv_font_montserrat_18, lv_color_hex(GREEN_DARK), lv_palette_main(LV_PALETTE_GREEN));
           lv_obj_add_event_cb(mBoxSelectBnWRadioButton, event_filterMBox, LV_EVENT_VALUE_CHANGED, mBoxSelectBnWRadioButton);
-          
-          /* COMMENTED , COLOR and B&W IS ENOUGH
-          //BOTH RADIO BUTTON WITH LABEL
-          lv_obj_t * mBoxSelectBothRadioButton = lv_obj_create(selectColorContainerRadioButton);
-          lv_obj_remove_flag(mBoxSelectBothRadioButton, LV_OBJ_FLAG_SCROLLABLE); 
-          lv_obj_align(mBoxSelectBothRadioButton, LV_ALIGN_LEFT_MID, 180, 0);
-          lv_obj_set_size(mBoxSelectBothRadioButton, 100, 40); 
-          //lv_obj_set_style_border_color(mBoxSelectBothRadioButton, lv_color_hex(GREY), 0);
-          lv_obj_set_style_border_opa(mBoxSelectBothRadioButton, LV_OPA_TRANSP, 0);
-
-          lv_obj_t * mBoxBothLabel = lv_label_create(mBoxSelectBothRadioButton);         
-          lv_label_set_text(mBoxBothLabel, filterPopupBoth_text); 
-          lv_obj_set_style_text_font(mBoxBothLabel, &lv_font_montserrat_22, 0);              
-          lv_obj_align(mBoxBothLabel, LV_ALIGN_LEFT_MID, - 10, 0);
-
-          mBoxSelectBothRadioButton = create_radiobutton(mBoxSelectBothRadioButton, "", 20, 0, 27, lv_color_hex(GREEN_DARK), lv_palette_main(LV_PALETTE_GREEN));
-          lv_obj_add_event_cb(mBoxSelectBothRadioButton, event_filterMBox, LV_EVENT_VALUE_CHANGED, mBoxSelectBothRadioButton);
-          */
+        
 
       //ONLY PREFERRED FILTER
       mBoxPreferredContainer = lv_obj_create(mBoxContainer);
@@ -258,7 +246,7 @@ void filterPopupCreate (){
             lv_obj_set_style_text_font(mBoxApplyFilterLabel, &lv_font_montserrat_22, 0);
             lv_obj_align(mBoxApplyFilterLabel, LV_ALIGN_CENTER, 0, 0);
   }
-  create_keyboard(mBoxParent);
+  //create_keyboard(keyboardFilter, mBoxFilterPopupParent);
 }
 
 

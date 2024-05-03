@@ -38,7 +38,7 @@ static lv_obj_t * stepDetailNamelLabel;
 static lv_obj_t * stepDurationLabel;
 static lv_obj_t * stepDurationMinLabel;
 static lv_obj_t * stepSaveLabel;
-static lv_obj_t * stepCloseLabel;
+static lv_obj_t * stepCancelLabel;
 static lv_obj_t * stepTypeLabel;
 static lv_obj_t * stepSourceLabel;
 static lv_obj_t * stepTypeHelpIcon;
@@ -52,24 +52,11 @@ static lv_obj_t * stepDiscsardAfterSwitch;
 static lv_obj_t * stepSaveButton;
 static lv_obj_t * stepCancelButton;
 
-static lv_obj_t * stepDetailNamelTextArea;
-static lv_obj_t * stepDetailMinTextArea;
-static lv_obj_t * stepDetailSecTextArea;
-
 static lv_obj_t * stepSourceDropDownList;
 static lv_obj_t * stepTypeDropDownList;
 static lv_style_t dropDownListStyle;
 
-
-static void event_stepDetail_style_delete(lv_event_t * e)
-{
-    lv_event_code_t code = lv_event_get_code(e);
-
-    if(code == LV_EVENT_DELETE) {
-        //list of all styles to be reset, so clean the memory.
-        //lv_style_reset(&textAreaStyle);
-    }
-}
+static lv_obj_t * stepsContainer;
 
 static void event_stepDetail(lv_event_t * e)
 {
@@ -85,6 +72,7 @@ static void event_stepDetail(lv_event_t * e)
       LV_LOG_USER("Pressed stepSaveButton");
       lv_msgbox_close(mboxCont);
       lv_obj_delete(mboxCont);
+      stepElementCreate(stepsContainer);
     }
     if(obj == stepCancelButton){
       LV_LOG_USER("Pressed stepCancelButton");
@@ -92,6 +80,29 @@ static void event_stepDetail(lv_event_t * e)
       lv_obj_delete(mboxCont);
     }
  }
+
+ if(code == LV_EVENT_FOCUSED){
+  if(obj == stepDetailMinTextArea){
+    LV_LOG_USER("Set minutes");
+    rollerPopupCreate(minutesOptions, setMinutesPopupTitle_text,stepDetailMinTextArea);
+  }
+  if(obj == stepDetailSecTextArea){
+    LV_LOG_USER("Set seconds");
+    rollerPopupCreate(secondsOptions, setMinutesPopupTitle_text,stepDetailSecTextArea);
+  }
+ }
+
+ if(obj == stepDetailNamelTextArea){
+     if(code == LV_EVENT_FOCUSED || code == LV_EVENT_CLICKED) {
+        lv_obj_add_flag(mboxParent, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_remove_flag(keyBoardParent, LV_OBJ_FLAG_HIDDEN);
+      }
+
+      if(code == LV_EVENT_DEFOCUSED) {
+        lv_obj_remove_flag(mboxParent, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(keyBoardParent, LV_OBJ_FLAG_HIDDEN);
+      }
+    }
 
   if(code == LV_EVENT_VALUE_CHANGED){
     if(obj == stepTypeDropDownList){
@@ -122,6 +133,16 @@ static void event_stepDetail(lv_event_t * e)
          LV_LOG_USER("Selected stepSourceDropDownList %d",stepSource);
     }
   }
+
+  if(code == LV_EVENT_DELETE) {
+       LV_LOG_USER("Delete Styles");
+        //list of all styles to be reset, so clean the memory.
+        lv_style_reset(&style_mBoxStepPopupTitleLine);
+        lv_style_reset(&dropDownListStyle);
+        if(keyboardStep == NULL){
+          LV_LOG_USER("create_keyboard");
+           }
+  }
 }
  
 /*
@@ -139,23 +160,20 @@ uint8_t discardAfter = 0;
 */
 
 
-void stepDetail(void)
+void stepDetail(lv_obj_t * referenceStep)
 {   
 /*********************
-  *    PAGE HEADER
-*********************/
-
-
-   
-  /*********************
   *    PAGE ELEMENTS
-  *********************/
+*********************/
+      stepsContainer = referenceStep;
+
       LV_LOG_USER("Step detail creation");
 
       stepDetailParent = lv_obj_class_create_obj(&lv_msgbox_backdrop_class, lv_layer_top());
       lv_obj_class_init_obj(stepDetailParent);
       lv_obj_remove_flag(stepDetailParent, LV_OBJ_FLAG_IGNORE_LAYOUT);
       lv_obj_set_size(stepDetailParent, LV_PCT(100), LV_PCT(100));
+
 
             stepDetailContainer = lv_obj_create(stepDetailParent);
             lv_obj_align(stepDetailContainer, LV_ALIGN_CENTER, 0, 0);
@@ -183,7 +201,7 @@ void stepDetail(void)
             stepDetailNameContainer = lv_obj_create(stepDetailContainer);
             lv_obj_remove_flag(stepDetailNameContainer, LV_OBJ_FLAG_SCROLLABLE); 
             lv_obj_align(stepDetailNameContainer, LV_ALIGN_TOP_LEFT, -15, 30);
-            lv_obj_set_size(stepDetailNameContainer, 315, 40); 
+            lv_obj_set_size(stepDetailNameContainer, 325, 40); 
             lv_obj_set_style_border_opa(stepDetailNameContainer, LV_OPA_TRANSP, 0);
             //lv_obj_set_style_border_color(stepDetailNameContainer, lv_color_hex(GREEN_DARK), 0);
 
@@ -207,7 +225,7 @@ void stepDetail(void)
             stepDurationContainer = lv_obj_create(stepDetailContainer);
             lv_obj_remove_flag(stepDurationContainer, LV_OBJ_FLAG_SCROLLABLE); 
             lv_obj_align(stepDurationContainer, LV_ALIGN_TOP_LEFT, -15, 70);
-            lv_obj_set_size(stepDurationContainer, 315, 40); 
+            lv_obj_set_size(stepDurationContainer, 325, 40); 
             lv_obj_set_style_border_opa(stepDurationContainer, LV_OPA_TRANSP, 0);
             //lv_obj_set_style_border_color(stepDurationContainer, lv_color_hex(GREEN_DARK), 0);
 
@@ -249,7 +267,7 @@ void stepDetail(void)
             stepTypeContainer = lv_obj_create(stepDetailContainer);
             lv_obj_remove_flag(stepTypeContainer, LV_OBJ_FLAG_SCROLLABLE); 
             lv_obj_align(stepTypeContainer, LV_ALIGN_TOP_LEFT, -15, 110);
-            lv_obj_set_size(stepTypeContainer, 315, 40); 
+            lv_obj_set_size(stepTypeContainer, 325, 40); 
             lv_obj_set_style_border_opa(stepTypeContainer, LV_OPA_TRANSP, 0);
             //lv_obj_set_style_border_color(stepTypeContainer, lv_color_hex(GREEN_DARK), 0);
 
@@ -269,6 +287,7 @@ void stepDetail(void)
                   lv_obj_align(stepTypeDropDownList, LV_ALIGN_LEFT_MID, 50, 2);
                   lv_obj_set_size(stepTypeDropDownList, 165, 50); 
                   lv_obj_add_event_cb(stepTypeDropDownList, event_stepDetail, LV_EVENT_VALUE_CHANGED, stepTypeDropDownList);
+                  lv_obj_set_style_bg_color(lv_dropdown_get_list(stepTypeDropDownList), lv_palette_main(LV_PALETTE_GREEN), LV_PART_SELECTED | LV_STATE_CHECKED);
 
 
                   stepTypeHelpIcon = lv_label_create(stepTypeContainer);         
@@ -280,7 +299,7 @@ void stepDetail(void)
             stepSourceContainer = lv_obj_create(stepDetailContainer);
             lv_obj_remove_flag(stepSourceContainer, LV_OBJ_FLAG_SCROLLABLE); 
             lv_obj_align(stepSourceContainer, LV_ALIGN_TOP_LEFT, -15, 150);
-            lv_obj_set_size(stepSourceContainer, 315, 40); 
+            lv_obj_set_size(stepSourceContainer, 325, 40); 
             lv_obj_set_style_border_opa(stepSourceContainer, LV_OPA_TRANSP, 0);
             //lv_obj_set_style_border_color(stepSourceContainer, lv_color_hex(GREEN_DARK), 0);
 
@@ -297,26 +316,28 @@ void stepDetail(void)
                   lv_dropdown_set_options(stepSourceDropDownList, stepSourceList);
                   lv_style_set_text_font(&dropDownListStyle, &lv_font_montserrat_20);
                   lv_obj_add_style(stepSourceDropDownList, &dropDownListStyle, 0);
-                  lv_obj_align(stepSourceDropDownList, LV_ALIGN_LEFT_MID, 75, 2);
-                  lv_obj_set_size(stepSourceDropDownList, 70, 50); 
+                  lv_obj_align(stepSourceDropDownList, LV_ALIGN_LEFT_MID, 71, 2);
+                  lv_obj_set_size(stepSourceDropDownList, 83, 50); 
                   lv_obj_add_event_cb(stepSourceDropDownList, event_stepDetail, LV_EVENT_VALUE_CHANGED, stepSourceDropDownList);
+                  lv_obj_set_style_bg_color(lv_dropdown_get_list(stepSourceDropDownList), lv_palette_main(LV_PALETTE_GREEN), LV_PART_SELECTED | LV_STATE_CHECKED); 
+
 
                   stepSourceTempLabel = lv_label_create(stepSourceContainer);         
                   lv_label_set_text(stepSourceTempLabel, stepDetailCurrentTemp_text); 
                   lv_obj_set_style_text_font(stepSourceTempLabel, &lv_font_montserrat_18, 0);              
-                  lv_obj_align(stepSourceTempLabel, LV_ALIGN_LEFT_MID, 145, 0);
+                  lv_obj_align(stepSourceTempLabel, LV_ALIGN_LEFT_MID, 155, 0);
 
                   stepSourceTempHelpIcon = lv_label_create(stepSourceContainer);         
                   lv_label_set_text(stepSourceTempHelpIcon, temp_icon); 
                   lv_obj_set_style_text_font(stepSourceTempHelpIcon, &FilMachineFontIcons_20, 0);              
-                  lv_obj_align(stepSourceTempHelpIcon, LV_ALIGN_LEFT_MID, 217, 0);
+                  lv_obj_align(stepSourceTempHelpIcon, LV_ALIGN_LEFT_MID, 227, 0);
 
                   //itoa(stepSourceTemp, tempBuffer, 10);
                   stepSourceTempValue = lv_label_create(stepSourceContainer);         
                   //lv_label_set_text(stepSourceTempValue, convertFloatToTemp(stepSourceTemp)); //THIS NOT WORKS!
                   lv_label_set_text(stepSourceTempValue, "20.4°C");  
                   lv_obj_set_style_text_font(stepSourceTempValue, &lv_font_montserrat_18, 0);              
-                  lv_obj_align(stepSourceTempValue, LV_ALIGN_LEFT_MID, 240, 1);
+                  lv_obj_align(stepSourceTempValue, LV_ALIGN_LEFT_MID, 245, 1);
 
 
 
@@ -347,6 +368,7 @@ void stepDetail(void)
       lv_obj_set_size(stepSaveButton, BUTTON_PROCESS_WIDTH, BUTTON_PROCESS_HEIGHT);
       lv_obj_align(stepSaveButton, LV_ALIGN_BOTTOM_LEFT, 10 , 10);
       lv_obj_add_event_cb(stepSaveButton, event_stepDetail, LV_EVENT_CLICKED, mBoxResetFilterButton);
+      lv_obj_add_event_cb(stepSaveButton, event_stepDetail, LV_EVENT_DELETE, NULL);
       lv_obj_set_style_bg_color(stepSaveButton, lv_color_hex(GREEN_DARK), LV_PART_MAIN);
 
           stepSaveLabel = lv_label_create(stepSaveButton);
@@ -359,149 +381,18 @@ void stepDetail(void)
       lv_obj_set_size(stepCancelButton, BUTTON_PROCESS_WIDTH, BUTTON_PROCESS_HEIGHT);
       lv_obj_align(stepCancelButton, LV_ALIGN_BOTTOM_RIGHT, - 10 , 10);
       lv_obj_add_event_cb(stepCancelButton, event_stepDetail, LV_EVENT_CLICKED, stepCancelButton);
+      lv_obj_add_event_cb(stepCancelButton, event_stepDetail, LV_EVENT_DELETE, NULL);
       lv_obj_set_style_bg_color(stepCancelButton, lv_color_hex(GREEN_DARK), LV_PART_MAIN);
 
-            stepCloseLabel = lv_label_create(stepCancelButton);
-            lv_label_set_text(stepCloseLabel, stepDetailCancel_text);
-            lv_obj_set_style_text_font(stepCloseLabel, &lv_font_montserrat_22, 0);
-            lv_obj_align(stepCloseLabel, LV_ALIGN_CENTER, 0, 0);
+            stepCancelLabel = lv_label_create(stepCancelButton);
+            lv_label_set_text(stepCancelLabel, stepDetailCancel_text);
+            lv_obj_set_style_text_font(stepCancelLabel, &lv_font_montserrat_22, 0);
+            lv_obj_align(stepCancelLabel, LV_ALIGN_CENTER, 0, 0);
 
-/*
-
-
-              //NAME TO FILTER
-              mBoxNameContainer = lv_obj_create(mBoxContainer);
-              lv_obj_remove_flag(mBoxNameContainer, LV_OBJ_FLAG_SCROLLABLE); 
-              lv_obj_align(mBoxNameContainer, LV_ALIGN_TOP_LEFT, -7, 30);
-              lv_obj_set_size(mBoxNameContainer, 300, 40); 
-              lv_obj_set_style_border_opa(mBoxNameContainer, LV_OPA_TRANSP, 0);
-              //lv_obj_set_style_border_color(mBoxNameContainer, lv_color_hex(GREEN_DARK), 0);
-
-                  mBoxNameLabel = lv_label_create(mBoxNameContainer);         
-                  lv_label_set_text(mBoxNameLabel, filterPopupName_text); 
-                  lv_obj_set_style_text_font(mBoxNameLabel, &lv_font_montserrat_22, 0);              
-                  lv_obj_align(mBoxNameLabel, LV_ALIGN_LEFT_MID, -10, 0);
-              
-                  mBoxNameTextArea = lv_textarea_create(mBoxNameContainer);
-                  lv_textarea_set_one_line(mBoxNameTextArea, true);
-                  lv_textarea_set_placeholder_text(mBoxNameTextArea, filterPopupNamePlaceHolder_text);
-                  lv_obj_align(mBoxNameTextArea, LV_ALIGN_LEFT_MID, 65, 0);
-                  lv_obj_set_width(mBoxNameTextArea, 215);
-                  lv_obj_add_event_cb(mBoxNameTextArea, event_filterMBox, LV_EVENT_ALL, mBoxNameTextArea);
-                  lv_obj_add_state(mBoxNameTextArea, LV_STATE_FOCUSED); 
-                  lv_obj_set_style_bg_color(mBoxNameTextArea, lv_palette_darken(LV_PALETTE_GREY, 3), 0);
-
-
-              //CHOOSE COLOR/B&W/Both
-              selectColorContainerRadioButton = lv_obj_create(mBoxContainer);
-              lv_obj_remove_flag(selectColorContainerRadioButton, LV_OBJ_FLAG_SCROLLABLE); 
-              lv_obj_align(selectColorContainerRadioButton, LV_ALIGN_LEFT_MID, -7, -5);
-              lv_obj_set_size(selectColorContainerRadioButton, 300, 40); 
-              //lv_obj_set_style_border_color(selectColorContainerRadioButton, lv_color_hex(GREEN_DARK), 0);
-              lv_obj_set_style_border_opa(selectColorContainerRadioButton, LV_OPA_TRANSP, 0);
-
-                  //COLOR RADIO BUTTON WITH LABEL
-                  mBoxSelectColorRadioButton = lv_obj_create(selectColorContainerRadioButton);
-                  lv_obj_remove_flag(mBoxSelectColorRadioButton, LV_OBJ_FLAG_SCROLLABLE); 
-                  lv_obj_align(mBoxSelectColorRadioButton, LV_ALIGN_LEFT_MID, -20, 0);
-                  lv_obj_set_size(mBoxSelectColorRadioButton, 100, 40); 
-                  //lv_obj_set_style_border_color(mBoxSelectColorRadioButton, lv_color_hex(GREY), 0);
-                  lv_obj_set_style_border_opa(mBoxSelectColorRadioButton, LV_OPA_TRANSP, 0);
-
-                  mBoxColorLabel = lv_label_create(mBoxSelectColorRadioButton);         
-                  lv_label_set_text(mBoxColorLabel, filterPopupColor_text); 
-                  lv_obj_set_style_text_font(mBoxColorLabel, &lv_font_montserrat_22, 0);              
-                  lv_obj_align(mBoxColorLabel, LV_ALIGN_LEFT_MID, - 10, 0);
-
-                  mBoxSelectColorRadioButton = create_radiobutton(mBoxSelectColorRadioButton, "", 25, 0, 27, &lv_font_montserrat_18, lv_color_hex(GREEN_DARK), lv_palette_main(LV_PALETTE_GREEN));
-                  lv_obj_add_event_cb(mBoxSelectColorRadioButton, event_filterMBox, LV_EVENT_VALUE_CHANGED, mBoxSelectColorRadioButton);
-
-                  //B&W RADIO BUTTON WITH LABEL
-                  mBoxSelectBnWRadioButton = lv_obj_create(selectColorContainerRadioButton);
-                  lv_obj_remove_flag(mBoxSelectBnWRadioButton, LV_OBJ_FLAG_SCROLLABLE); 
-                  lv_obj_align(mBoxSelectBnWRadioButton, LV_ALIGN_LEFT_MID, 80, 0);
-                  lv_obj_set_size(mBoxSelectBnWRadioButton, 100, 40); 
-                  //lv_obj_set_style_border_color(mBoxSelectBnWRadioButton, lv_color_hex(GREY), 0);
-                  lv_obj_set_style_border_opa(mBoxSelectBnWRadioButton, LV_OPA_TRANSP, 0);
-
-                  mBoxBnWLabel = lv_label_create(mBoxSelectBnWRadioButton);         
-                  lv_label_set_text(mBoxBnWLabel, filterPopupBnW_text); 
-                  lv_obj_set_style_text_font(mBoxBnWLabel, &lv_font_montserrat_22, 0);              
-                  lv_obj_align(mBoxBnWLabel, LV_ALIGN_LEFT_MID, - 10, 0);
-
-                  mBoxSelectBnWRadioButton = create_radiobutton(mBoxSelectBnWRadioButton, "", 25, 0, 27, &lv_font_montserrat_18, lv_color_hex(GREEN_DARK), lv_palette_main(LV_PALETTE_GREEN));
-                  lv_obj_add_event_cb(mBoxSelectBnWRadioButton, event_filterMBox, LV_EVENT_VALUE_CHANGED, mBoxSelectBnWRadioButton);
-                  
-                  /* COMMENTED , COLOR and B&W IS ENOUGH
-                  //BOTH RADIO BUTTON WITH LABEL
-                  lv_obj_t * mBoxSelectBothRadioButton = lv_obj_create(selectColorContainerRadioButton);
-                  lv_obj_remove_flag(mBoxSelectBothRadioButton, LV_OBJ_FLAG_SCROLLABLE); 
-                  lv_obj_align(mBoxSelectBothRadioButton, LV_ALIGN_LEFT_MID, 180, 0);
-                  lv_obj_set_size(mBoxSelectBothRadioButton, 100, 40); 
-                  //lv_obj_set_style_border_color(mBoxSelectBothRadioButton, lv_color_hex(GREY), 0);
-                  lv_obj_set_style_border_opa(mBoxSelectBothRadioButton, LV_OPA_TRANSP, 0);
-
-                  lv_obj_t * mBoxBothLabel = lv_label_create(mBoxSelectBothRadioButton);         
-                  lv_label_set_text(mBoxBothLabel, filterPopupBoth_text); 
-                  lv_obj_set_style_text_font(mBoxBothLabel, &lv_font_montserrat_22, 0);              
-                  lv_obj_align(mBoxBothLabel, LV_ALIGN_LEFT_MID, - 10, 0);
-
-                  mBoxSelectBothRadioButton = create_radiobutton(mBoxSelectBothRadioButton, "", 20, 0, 27, lv_color_hex(GREEN_DARK), lv_palette_main(LV_PALETTE_GREEN));
-                  lv_obj_add_event_cb(mBoxSelectBothRadioButton, event_filterMBox, LV_EVENT_VALUE_CHANGED, mBoxSelectBothRadioButton);
-                  
-
-              //ONLY PREFERRED FILTER
-              mBoxPreferredContainer = lv_obj_create(mBoxContainer);
-              lv_obj_remove_flag(mBoxPreferredContainer, LV_OBJ_FLAG_SCROLLABLE); 
-              lv_obj_align(mBoxPreferredContainer, LV_ALIGN_BOTTOM_LEFT, -7, -45);
-              lv_obj_set_size(mBoxPreferredContainer, 300, 40); 
-              //lv_obj_set_style_border_color(mBoxPreferredContainer, lv_color_hex(GREEN_DARK), 0);
-              lv_obj_set_style_border_opa(mBoxPreferredContainer, LV_OPA_TRANSP, 0);
-
-                  mBoxPreferredLabel = lv_label_create(mBoxPreferredContainer);         
-                  lv_label_set_text(mBoxPreferredLabel, filterPopupPreferred_text); 
-                  lv_obj_set_style_text_font(mBoxPreferredLabel, &lv_font_montserrat_22, 0);              
-                  lv_obj_align(mBoxPreferredLabel, LV_ALIGN_LEFT_MID, -10, 0);
-
-                  mBoxOnlyPreferredSwitch = lv_switch_create(mBoxPreferredContainer);
-                  lv_obj_add_event_cb(mBoxOnlyPreferredSwitch, event_filterMBox, LV_EVENT_VALUE_CHANGED, mBoxOnlyPreferredSwitch);
-                  lv_obj_align(mBoxOnlyPreferredSwitch, LV_ALIGN_LEFT_MID, 170, 0);
-                  lv_obj_set_style_bg_color(mBoxOnlyPreferredSwitch, lv_palette_darken(LV_PALETTE_GREY, 3), LV_STATE_DEFAULT);
-                  lv_obj_set_style_bg_color(mBoxOnlyPreferredSwitch,  lv_palette_main(LV_PALETTE_GREEN), LV_PART_KNOB | LV_STATE_DEFAULT);
-                  lv_obj_set_style_bg_color(mBoxOnlyPreferredSwitch, lv_color_hex(GREEN_DARK) , LV_PART_INDICATOR | LV_STATE_CHECKED);
-
-
-
-              //RESET FILTER
-              mBoxResetFilterButton = lv_button_create(mBoxContainer);
-              lv_obj_set_size(mBoxResetFilterButton, BUTTON_MBOX_WIDTH, BUTTON_MBOX_HEIGHT);
-              lv_obj_align(mBoxResetFilterButton, LV_ALIGN_BOTTOM_LEFT, 10 , 10);
-              lv_obj_add_event_cb(mBoxResetFilterButton, event_filterMBox, LV_EVENT_CLICKED, mBoxResetFilterButton);
-              lv_obj_set_style_bg_color(mBoxResetFilterButton, lv_color_hex(GREEN_DARK), LV_PART_MAIN);
-
-                  mBoxResetFilterLabel = lv_label_create(mBoxResetFilterButton);
-                  lv_label_set_text(mBoxResetFilterLabel, filterPopupResetButton_text);
-                  lv_obj_set_style_text_font(mBoxResetFilterLabel, &lv_font_montserrat_22, 0);
-                  lv_obj_align(mBoxResetFilterLabel, LV_ALIGN_CENTER, 0, 0);
-
-
-
-              //APPLY FILTER
-              mBoxApplyFilterButton = lv_button_create(mBoxContainer);
-              lv_obj_set_size(mBoxApplyFilterButton, BUTTON_MBOX_WIDTH, BUTTON_MBOX_HEIGHT);
-              lv_obj_align(mBoxApplyFilterButton, LV_ALIGN_BOTTOM_RIGHT, - 10 , 10);
-              lv_obj_add_event_cb(mBoxApplyFilterButton, event_filterMBox, LV_EVENT_CLICKED, mBoxApplyFilterButton);
-              lv_obj_set_style_bg_color(mBoxApplyFilterButton, lv_color_hex(GREEN_DARK), LV_PART_MAIN);
-
-                    mBoxApplyFilterLabel = lv_label_create(mBoxApplyFilterButton);
-                    lv_label_set_text(mBoxApplyFilterLabel, filterPopupApplyButton_text);
-                    lv_obj_set_style_text_font(mBoxApplyFilterLabel, &lv_font_montserrat_22, 0);
-                    lv_obj_align(mBoxApplyFilterLabel, LV_ALIGN_CENTER, 0, 0);
-          }
-          create_keyboard(mBoxParent);
-
-          */
-
+if(keyboardStep == NULL){
+  LV_LOG_USER("create_keyboard");
+    //create_keyboard(keyboardStep, stepDetailParent);
+    }
 }
 
 

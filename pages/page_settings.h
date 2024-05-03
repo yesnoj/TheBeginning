@@ -81,25 +81,25 @@ void event_settingPopupMBox(lv_event_t * e){
   lv_obj_t * data = (lv_obj_t *)lv_event_get_user_data(e);
   
   if(data == tempSensorTuningLabel){
-    messagePopupCreate(messagePopupDetailTitle_text,tempAlertMBox_text);
+    messagePopupCreate(messagePopupDetailTitle_text,tempAlertMBox_text, NULL);
   }
   if(data == filmRotationSpeedLabel){
-    messagePopupCreate(messagePopupDetailTitle_text,filmRotationSpeedAlertMBox_text);
+    messagePopupCreate(messagePopupDetailTitle_text,filmRotationSpeedAlertMBox_text, NULL);
   }
   if(data == filmRotationInverseIntervalLabel){
-    messagePopupCreate(messagePopupDetailTitle_text,rotationInverseIntervalAlertMBox_text);
+    messagePopupCreate(messagePopupDetailTitle_text,rotationInverseIntervalAlertMBox_text, NULL);
   }
   if(data == filmRotationRandomLabel){
-    messagePopupCreate(messagePopupDetailTitle_text,filmRotationRandomAlertMBox_text);
+    messagePopupCreate(messagePopupDetailTitle_text,filmRotationRandomAlertMBox_text, NULL);
   }
   if(data == persistentAlarmLabel){
-    messagePopupCreate(messagePopupDetailTitle_text,soundAlertMBox_text);
+    messagePopupCreate(messagePopupDetailTitle_text,soundAlertMBox_text, NULL);
   }
   if(data == autostartLabel){
-    messagePopupCreate(messagePopupDetailTitle_text,autostartAlertMBox_text);
+    messagePopupCreate(messagePopupDetailTitle_text,autostartAlertMBox_text, NULL);
   }
   if(data == drainFillTimeLabel){
-    messagePopupCreate(messagePopupDetailTitle_text,drainFillTimeAlertMBox_text);
+    messagePopupCreate(messagePopupDetailTitle_text,drainFillTimeAlertMBox_text, NULL);
   }
 }
 
@@ -138,7 +138,7 @@ void event_settings_handler(lv_event_t * e)
     if(act_cb == tempSensorTuneButton){
       if(code == LV_EVENT_SHORT_CLICKED) {
           LV_LOG_USER("TUNE short click");
-          temperaturePopupCreate(tempCelsiusOptions,tempSensorTuneButton);
+          rollerPopupCreate(tempCelsiusOptions,tuneTempPopupTitle_text,tempSensorTuneButton);
         }
       if(code == LV_EVENT_LONG_PRESSED_REPEAT) {
           LV_LOG_USER("TUNE Long click");

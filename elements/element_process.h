@@ -45,7 +45,11 @@ static void event_processesElement_style_delete(lv_event_t * e)
 static void event_processElement(lv_event_t * e){
   lv_event_code_t code = lv_event_get_code(e);
   lv_obj_t * obj = (lv_obj_t *)lv_event_get_target(e);
- 
+  lv_obj_t * cont = (lv_obj_t *)lv_event_get_current_target(e);
+
+  if(obj == cont && cont != processElementSummary && cont != preferredIcon)
+    return;
+
 
   if(obj == preferredIcon){
       if(code == LV_EVENT_CLICKED) {   
@@ -63,11 +67,19 @@ static void event_processElement(lv_event_t * e){
           }
       }
   }
+  
   if(obj == processElementSummary){
-      if(code == LV_EVENT_CLICKED) {    
+      if(code == LV_EVENT_SHORT_CLICKED) {    
         LV_LOG_USER("Process Element Details");
         processDetail();
       }
+      if(code == LV_EVENT_LONG_PRESSED_REPEAT){
+        if(mBoxPopupParent == NULL){
+          LV_LOG_USER("Process Element Long Press for popup delete");
+          messagePopupCreate(deletePopupTitle_text,deletePopupBody_text, processElement);
+        }
+      }
+    
   }
 }
 
@@ -93,7 +105,9 @@ void processElementCreate(void){
         lv_obj_set_size(processElementSummary, 270, 66);
         lv_obj_align(processElementSummary, LV_ALIGN_TOP_LEFT, -16, -16);
         lv_obj_remove_flag(processElementSummary, LV_OBJ_FLAG_SCROLLABLE);  
-        lv_obj_add_event_cb(processElementSummary, event_processElement, LV_EVENT_CLICKED, processElementSummary);  
+        lv_obj_add_event_cb(processElementSummary, event_processElement, LV_EVENT_SHORT_CLICKED, processElementSummary);
+        lv_obj_add_event_cb(processElementSummary, event_processElement, LV_EVENT_LONG_PRESSED_REPEAT, processElementSummary);
+  
 
         lv_style_init(&style);
 
