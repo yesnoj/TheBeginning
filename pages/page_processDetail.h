@@ -138,6 +138,7 @@ static void event_processDetail(lv_event_t * e)
         lv_msgbox_close(mboxCont);
         lv_obj_delete(mboxCont);
         LV_LOG_USER("Pressed processRunButton");
+        checkup();
     }
     if(data == processNewStepButton){
         LV_LOG_USER("Pressed processNewStepButton");
@@ -214,7 +215,7 @@ void processDetail(void)
 
             processDetailNameContainer = lv_obj_create(processDetailContainer);
             lv_obj_remove_flag(processDetailNameContainer, LV_OBJ_FLAG_SCROLLABLE); 
-            lv_obj_align(processDetailNameContainer, LV_ALIGN_TOP_LEFT, -10, -25);
+            lv_obj_align(processDetailNameContainer, LV_ALIGN_TOP_LEFT, -10, -15);
             lv_obj_set_size(processDetailNameContainer, 350, 50); 
             //lv_obj_set_style_border_color(processDetailNameContainer, lv_color_hex(GREEN_DARK), 0);
             lv_obj_set_style_border_opa(processDetailNameContainer, LV_OPA_TRANSP, 0);

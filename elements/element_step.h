@@ -33,15 +33,6 @@ static lv_obj_t * stepTypeIcon;
 
 
 
-static void event_stepesElement_style_delete(lv_event_t * e)
-{
-    lv_event_code_t code = lv_event_get_code(e);
-
-    if(code == LV_EVENT_DELETE) {
-        lv_style_reset(&stepStyle);
-    }
-}
-
 static void event_stepElement(lv_event_t * e){
   lv_event_code_t code = lv_event_get_code(e);
   lv_obj_t * obj = (lv_obj_t *)lv_event_get_target(e);
@@ -59,6 +50,10 @@ static void event_stepElement(lv_event_t * e){
         messagePopupCreate(deletePopupTitle_text,deletePopupBody_text, stepElement);
       }
     }
+  }
+  
+  if(code == LV_EVENT_DELETE) {
+        lv_style_reset(&stepStyle);
   }
 }
 

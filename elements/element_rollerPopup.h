@@ -30,7 +30,7 @@ lv_obj_t * mBoxRollerButtonLabel;
 lv_obj_t * mBoxRollerRollerContainer;
 
 
-static void event_tuneRoller(lv_event_t * e)
+static void event_Roller(lv_event_t * e)
 {
   lv_event_code_t code = lv_event_get_code(e);
   lv_obj_t * obj = (lv_obj_t *)lv_event_get_target(e);
@@ -161,7 +161,7 @@ void rollerPopupCreate(const char * tempOptions,const char * popupTitle, lv_obj_
   lv_obj_set_width(tempRoller, 120);
   lv_obj_set_height(tempRoller, 100);
   lv_obj_align(tempRoller, LV_ALIGN_CENTER, 0, -30);
-  lv_obj_add_event_cb(tempRoller, event_tuneRoller, LV_EVENT_ALL, NULL);
+  lv_obj_add_event_cb(tempRoller, event_Roller, LV_EVENT_ALL, NULL);
   lv_obj_add_style(tempRoller, &style_rollerTemp, LV_PART_SELECTED);  
   lv_roller_set_selected(tempRoller, 0, LV_ANIM_OFF);   
   lv_obj_set_style_border_color(tempRoller, lv_color_hex(WHITE), LV_PART_MAIN);
@@ -169,7 +169,7 @@ void rollerPopupCreate(const char * tempOptions,const char * popupTitle, lv_obj_
    mBoxRollerButton = lv_button_create(mBoxRollerRollerContainer);
    lv_obj_set_size(mBoxRollerButton, BUTTON_TUNE_WIDTH, BUTTON_TUNE_HEIGHT);
    lv_obj_align(mBoxRollerButton, LV_ALIGN_BOTTOM_MID, 0 , 0);
-   lv_obj_add_event_cb(mBoxRollerButton, event_tuneRoller, LV_EVENT_CLICKED, whoCallMe);
+   lv_obj_add_event_cb(mBoxRollerButton, event_Roller, LV_EVENT_CLICKED, whoCallMe);
 
          mBoxRollerButtonLabel = lv_label_create(mBoxRollerButton);         
          lv_label_set_text(mBoxRollerButtonLabel, tuneRollerButton_text); 

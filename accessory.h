@@ -399,22 +399,6 @@ char *createRollerValues( uint32_t maxVal, char* extra_str ) {
     return buf;
 }
 
-/*
-char * createRollerValues(uint16_t minVal, uint16_t maxVal){
-  char buffer [1000];
-  char *buf =(char*)malloc(sizeof(maxVal));
-
-  buf[0] = '\0';
-  for (uint32_t i = minVal; i <= maxVal; i++) {
-    itoa(i,buffer,10);
-    strcat(buf,buffer);
-    if(i < maxVal)
-      strcat(buf,"\n");
-  }
-  //lv_roller_set_options(roller,*buf,LV_ROLLER_MODE_NORMAL);
-  return buf;
-}
-*/
 
 char * convertFloatToChar(float temp){
   char *buf =(char*)malloc(sizeof(temp));
@@ -422,6 +406,20 @@ char * convertFloatToChar(float temp){
   buf[0] = '\0';
   dtostrf(temp, 4, 1, buf);
   return buf;
+}
+
+void myLongEvent(lv_event_t * e, uint32_t howLongInMs)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    static uint32_t t;
+    if(code == LV_EVENT_PRESSED) {
+        t = lv_tick_get();
+    } 
+    else if(code == LV_EVENT_PRESSING) {
+        if(lv_tick_elaps(t) > howLongInMs) {
+            /*Do something*/
+        }
+    }
 }
 
 #ifdef __cplusplus

@@ -304,6 +304,9 @@ const char * stepSourceList = "C1\n"
                               "C2\n"
                               "C3\n"
                               "WB";
+
+char processSourceList[4][3]  = {"C1","C2","C3","WB"};
+char processTempControlList[3][6]  = {"Off","Run","Susp."};
                         
 uint8_t stepType = 0;
 uint8_t stepSource = 0;
@@ -319,6 +322,8 @@ char * secondsOptions;
 char * tempCelsiusOptions;       
 char * tempCelsiusToleranceOptions;  
 
+char stopProcessPopupTitle_text [16] = {"Stop process"};
+char warningPopupTitle_text [16] = {"Warning!"};
 char setMinutesPopupTitle_text [16] = {"Set minutes"};
 char setSecondsPopupTitle_text [16] = {"Set seconds"};
 char tuneTempPopupTitle_text [16] = {"Set temperature"};
@@ -327,6 +332,10 @@ char messagePopupDetailTitle_text [19] = {"Detail information"};
 char deleteButton_text [7] = {"Delete"};
 char deletePopupTitle_text [15] = {"Delete element"};
 char deletePopupBody_text [45] = {"Are you sure to delete the selected element?"};
+char warningPopupLowWaterTitle_text [151] = {"The water level is too low!Temperature control has been suspended\nRefill the water bath immediately to correct resume the temperature control process"};
+char stopProcessPopupBody_text [223] = {"WARNING!Stopping a process halfway through without waiting for the end of the step will probably ruin the film inside the tank and leave the chemistry inside the machine!\nDo you really want to stop the process right now?"};
+
+char currentStep[3][11]  = {"Filling","Draining","Processing"};
 
 char rollerElementSelected [10];
 uint8_t rolleTempSelected = 0;
@@ -335,6 +344,25 @@ lv_obj_t * tempRoller;
 lv_style_t style_rollerTemp;
 lv_style_t textAreaStyle;
 char tempBuffer [10];
+
+
+/*********************
+* Checkup strings/vars
+*********************/
+char checkupNexStepsTitle_text [12] = {"Next steps:"};
+char checkupProcessReady_text [30] = {"The process is ready to start"};
+char checkupTheMachineWillDo_text [18] = {"The machine will:"};
+char checkupFillWater_text [20] = {"Fill the water bath"};
+char checkupTankRotation_text [38] = {"Check tank presence and film rotation"};
+char checkupReachTemp_text [39] = {"Reach the chemistry target temperature"};
+char checkupStop_text [5] = {"Stop"};
+char checkupStopNow_text [10] = {"Stop now!"};
+char checkupStopAfter_text [21] = {"Stop after!"};
+char checkupProcessingTitle_text [12] = {"Processing:"};
+char checkupStepSource_text [13] = {"Step source:"};
+char checkupTempControl_text [15] = {"Temp. control:"};
+char checkupWaterTemp_text [12] = {"Water temp:"};
+char checkupNextStep_text [11] = {"Next step:"};
 
 SPIClass SD_SPI;
 

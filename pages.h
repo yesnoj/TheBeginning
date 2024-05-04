@@ -28,6 +28,7 @@ extern "C" {
 #include "pages/page_tools.h"
 #include "pages/page_settings.h"
 #include "pages/page_stepDetail.h"
+#include "pages/page_checkup.h"
 #include "pages/page_processDetail.h"
 #include "elements/element_process.h"
 #include "pages/page_processes.h"
