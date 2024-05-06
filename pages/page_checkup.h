@@ -1,3 +1,6 @@
+#include "lv_api_map_v8.h"
+#include "misc/lv_palette.h"
+#include <sys/_stdint.h>
 
 /**
  * @file page_checkup.h
@@ -33,8 +36,19 @@ static lv_obj_t * checkupStepSourceContainer;
 static lv_obj_t * checkupTempControlContainer;
 static lv_obj_t * checkupWaterTempContainer;
 static lv_obj_t * checkupNextStepContainer;
+static lv_obj_t * checkupSelectTankChemistryContainer;
+static lv_obj_t * checkupFillWaterContainer;
+static lv_obj_t * checkupTargetTempsContainer;
+static lv_obj_t * checkupTargetTempContainer;
+static lv_obj_t * checkupTargetWaterTempContainer;
+static lv_obj_t * checkupTargetChemistryTempContainer;
+static lv_obj_t * checkupTankIsPresentContainer;
+static lv_obj_t * checkupFilmRotatingContainer;
+static lv_obj_t * checkupProcessingContainer;
 
-static lv_obj_t * checkupProcessName;
+
+static lv_obj_t * checkupTankSizeLabel;
+static lv_obj_t * checkupChemistryVolumeLabel;
 static lv_obj_t * checkupNextStepsLabel;
 static lv_obj_t * checkupWaterFillLabel;
 static lv_obj_t * checkupReachTempLabel;
@@ -48,20 +62,53 @@ static lv_obj_t * checkupWaterTempLabel;
 static lv_obj_t * checkupNextStepLabel;
 static lv_obj_t * checkupStopAfterButtonLabel;
 static lv_obj_t * checkupStopNowButtonLabel;
+static lv_obj_t * checkupStartButtonLabel;
+static lv_obj_t * checkupProcessReadyLabel;
+static lv_obj_t * checkupSelectBeforeStartLabel;
+static lv_obj_t * checkupFillWaterLabel;
+static lv_obj_t * checkupSkipButtonLabel;
+static lv_obj_t * checkupTargetTempLabel;
+static lv_obj_t * checkupTargetWaterTempLabel;
+static lv_obj_t * checkupTargetChemistryTempLabel;
+static lv_obj_t * checkupTankIsPresentLabel;
+static lv_obj_t * checkupFilmRotatingLabel;
 
+static lv_obj_t * checkupTargetTempValue;
+static lv_obj_t * checkupTargetWaterTempValue;
+static lv_obj_t * checkupTargetChemistryTempValue;
 static lv_obj_t * checkupStepSourceValue;
 static lv_obj_t * checkupTempControlValue;
 static lv_obj_t * checkupWaterTempValue;
 static lv_obj_t * checkupNextStepValue;
+static lv_obj_t * checkupProcessNameValue;
+static lv_obj_t * checkupTankIsPresentValue;
+static lv_obj_t * checkupFilmRotatingValue;
+static lv_obj_t * checkupStepTimeLeftValue;
+static lv_obj_t * checkupProcessTimeLeftValue;
+static lv_obj_t * checkupStepNameValue;
+static lv_obj_t * checkupStepKindValue;
 
 static lv_obj_t * checkupWaterFillStatusIcon;
 static lv_obj_t * checkupReachTempStatusIcon;
 static lv_obj_t * checkupTankAndFilmStatusIcon;
 
+static lv_obj_t * lowVolumeChemRadioButton;
+static lv_obj_t * highVolumeChemRadioButton;
+
+
+static lv_obj_t * checkupSkipButton;
+static lv_obj_t * checkupStartButton;
 static lv_obj_t * checkupStopAfterButton;
 static lv_obj_t * checkupStopNowButton;
 static lv_obj_t * checkupStopStepsButton;
 static lv_obj_t * checkupCloseButton;
+
+static uint8_t  isProcessing = 1; // 0 or 1
+static uint8_t  processStep = 4;//0 or 1 or 2 or 3 or 4
+static uint32_t activeVolume_index = 0;
+
+static lv_obj_t * stepArc;
+static lv_obj_t * processArc;
 
 void event_checkup(lv_event_t * e){
   lv_event_code_t code = lv_event_get_code(e);
@@ -71,9 +118,29 @@ void event_checkup(lv_event_t * e){
   lv_obj_t * mboxParent = (lv_obj_t *)lv_obj_get_parent(mboxCont);
   lv_obj_t * data = (lv_obj_t *)lv_event_get_user_data(e);
 
+  //to manage radio buttons
+  lv_obj_t * cont = (lv_obj_t *)lv_event_get_current_target(e);
+  uint32_t * active_id = (uint32_t *)lv_event_get_user_data(e);
+  lv_obj_t * act_cb = (lv_obj_t *)lv_event_get_target(e);
+  lv_obj_t * old_cb = (lv_obj_t *)lv_obj_get_child(cont, *active_id);
+
+  if(code == LV_EVENT_FOCUSED) {
+      if(data == checkupTankSizeTextArea){
+          LV_LOG_USER("Set Tank Size");
+          rollerPopupCreate(checkupTankSizesList,checkupTankSize_text,checkupTankSizeTextArea);
+      }
+  }
+
+  if(act_cb == lowVolumeChemRadioButton || act_cb == highVolumeChemRadioButton){
+   if(code == LV_EVENT_CLICKED) {
+        lv_obj_remove_state(old_cb, LV_STATE_CHECKED);
+        lv_obj_add_state(act_cb, LV_STATE_CHECKED); 
+        *active_id = lv_obj_get_index(act_cb);
+        LV_LOG_USER("Selected chemistry volume radio buttons: %d", (int)active_index);
+   }
+  }
 }
 
-uint8_t isProcessing = 0; 
 
 void checkup()
 {  
@@ -109,12 +176,12 @@ void checkup()
             //lv_obj_set_style_border_color(checkupProcessNameContainer, lv_color_hex(GREEN_DARK), 0);
             lv_obj_set_style_border_opa(checkupProcessNameContainer, LV_OPA_TRANSP, 0);
 
-                  checkupProcessName = lv_label_create(checkupProcessNameContainer);         
-                  lv_label_set_text(checkupProcessName, "E6 six baths"); 
-                  lv_obj_set_width(checkupProcessName, 300);
-                  lv_obj_set_style_text_font(checkupProcessName, &lv_font_montserrat_30, 0);              
-                  lv_obj_align(checkupProcessName, LV_ALIGN_TOP_LEFT, -10, -8);
-                  lv_label_set_long_mode(checkupProcessName, LV_LABEL_LONG_SCROLL_CIRCULAR);
+                  checkupProcessNameValue = lv_label_create(checkupProcessNameContainer);         
+                  lv_label_set_text(checkupProcessNameValue, "E6 six baths"); 
+                  lv_obj_set_width(checkupProcessNameValue, 300);
+                  lv_obj_set_style_text_font(checkupProcessNameValue, &lv_font_montserrat_30, 0);              
+                  lv_obj_align(checkupProcessNameValue, LV_ALIGN_TOP_LEFT, -10, -8);
+                  lv_label_set_long_mode(checkupProcessNameValue, LV_LABEL_LONG_SCROLL_CIRCULAR);
 
             
         //LEFT SIDE OF SCREEN
@@ -352,35 +419,279 @@ void checkup()
             lv_obj_set_style_border_color(checkupStepContainer, lv_palette_main(LV_PALETTE_GREEN), 0);
             //lv_obj_set_style_border_opa(checkupStepContainer, LV_OPA_TRANSP, 0);
 
-
-
-         
-
-/*
-
-*/
-
-
-
-
-/*********************
- *    PAGE HEADER
- *********************/
-
-
-  
+                  if(processStep == 0){
+                        checkupSelectTankChemistryContainer = lv_obj_create(checkupStepContainer);
+                        lv_obj_remove_flag(checkupSelectTankChemistryContainer, LV_OBJ_FLAG_SCROLLABLE); 
+                        lv_obj_align(checkupSelectTankChemistryContainer, LV_ALIGN_TOP_LEFT, -18, -18);
+                        lv_obj_set_size(checkupSelectTankChemistryContainer, 240, 265); 
+                        //lv_obj_set_style_border_color(checkupSelectTankChemistryContainer, lv_palette_main(LV_PALETTE_GREEN), 0);
+                        lv_obj_set_style_border_opa(checkupSelectTankChemistryContainer, LV_OPA_TRANSP, 0);
+                        lv_obj_add_event_cb(checkupSelectTankChemistryContainer, event_checkup, LV_EVENT_CLICKED, &activeVolume_index);
 
 
 
-/*********************
- *    PAGE ELEMENTS
- *********************/
-    
+                              checkupProcessReadyLabel = lv_label_create(checkupSelectTankChemistryContainer);         
+                              lv_label_set_text(checkupProcessReadyLabel, checkupProcessReady_text); 
+                              lv_obj_set_width(checkupProcessReadyLabel, 230);
+                              lv_obj_set_style_text_font(checkupProcessReadyLabel, &lv_font_montserrat_22, 0);              
+                              lv_obj_align(checkupProcessReadyLabel, LV_ALIGN_TOP_LEFT, -10, -8);
 
 
- 
+                              checkupTankSizeLabel = lv_label_create(checkupSelectTankChemistryContainer);         
+                              lv_label_set_text(checkupTankSizeLabel, checkupTankSize_text); 
+                              lv_obj_set_width(checkupTankSizeLabel, LV_SIZE_CONTENT);
+                              lv_obj_set_style_text_font(checkupTankSizeLabel, &lv_font_montserrat_18, 0);              
+                              lv_obj_align(checkupTankSizeLabel, LV_ALIGN_TOP_MID, 0, 20);
 
-    
+                              checkupTankSizeTextArea = lv_textarea_create(checkupSelectTankChemistryContainer);
+                              lv_textarea_set_one_line(checkupTankSizeTextArea, true);
+                              lv_textarea_set_placeholder_text(checkupTankSizeTextArea, checkupTankSizePlaceHolder_text);
+                              lv_obj_align(checkupTankSizeTextArea, LV_ALIGN_TOP_MID, 0, 45);
+                              lv_obj_set_width(checkupTankSizeTextArea, 100);
+
+                              lv_obj_add_event_cb(checkupTankSizeTextArea, event_checkup, LV_EVENT_ALL, checkupTankSizeTextArea);
+                              lv_obj_add_state(checkupTankSizeTextArea, LV_STATE_FOCUSED); /*To be sure the cursor is visible*/
+                              lv_obj_set_style_bg_color(checkupTankSizeTextArea, lv_palette_darken(LV_PALETTE_GREY, 3), 0);
+                              lv_obj_set_style_text_align(checkupTankSizeTextArea , LV_TEXT_ALIGN_CENTER, 0);
+                              //lv_style_set_text_font(&textAreaStyle, &lv_font_montserrat_18);
+                              lv_obj_add_style(checkupTankSizeTextArea, &textAreaStyle, LV_PART_MAIN);
+                              lv_obj_set_style_border_color(checkupTankSizeTextArea, lv_color_hex(WHITE), 0);
+
+                              checkupChemistryVolumeLabel = lv_label_create(checkupSelectTankChemistryContainer);         
+                              lv_label_set_text(checkupChemistryVolumeLabel, checkupChemistryVolume_text); 
+                              lv_obj_set_width(checkupChemistryVolumeLabel, LV_SIZE_CONTENT);
+                              lv_obj_set_style_text_font(checkupChemistryVolumeLabel, &lv_font_montserrat_18, 0);              
+                              lv_obj_align(checkupChemistryVolumeLabel, LV_ALIGN_TOP_MID, 0, 110);
+
+                              lowVolumeChemRadioButton = create_radiobutton(checkupSelectTankChemistryContainer, checkupChemistryLowVol_text, -105, 45, 27, &lv_font_montserrat_18, lv_color_hex(GREEN_DARK), lv_palette_main(LV_PALETTE_GREEN));
+                              highVolumeChemRadioButton = create_radiobutton(checkupSelectTankChemistryContainer, checkupChemistryHighVol_text, -10, 45, 27, &lv_font_montserrat_18, lv_color_hex(GREEN_DARK), lv_palette_main(LV_PALETTE_GREEN));
+
+
+
+                        checkupStartButton = lv_button_create(checkupSelectTankChemistryContainer);
+                        lv_obj_set_size(checkupStartButton, BUTTON_PROCESS_WIDTH, BUTTON_PROCESS_HEIGHT);
+                        lv_obj_align(checkupStartButton, LV_ALIGN_BOTTOM_MID, 0, 10);
+                        lv_obj_add_event_cb(checkupStartButton, event_checkup, LV_EVENT_CLICKED, checkupStartButton);
+                        lv_obj_set_style_bg_color(checkupStartButton, lv_color_hex(GREEN_DARK), LV_PART_MAIN);
+                        lv_obj_move_foreground(checkupStartButton);
+
+                                checkupStartButtonLabel = lv_label_create(checkupStartButton);         
+                                lv_label_set_text(checkupStartButtonLabel, checkupStart_text); 
+                                lv_obj_set_style_text_font(checkupStartButtonLabel, &lv_font_montserrat_22, 0);              
+                                lv_obj_align(checkupStartButtonLabel, LV_ALIGN_CENTER, 0, 0);
+                  }
+
+                  if(processStep == 1){
+                        checkupFillWaterContainer = lv_obj_create(checkupStepContainer);
+                        lv_obj_remove_flag(checkupFillWaterContainer, LV_OBJ_FLAG_SCROLLABLE); 
+                        lv_obj_align(checkupFillWaterContainer, LV_ALIGN_TOP_LEFT, -18, -18);
+                        lv_obj_set_size(checkupFillWaterContainer, 240, 265); 
+                        //lv_obj_set_style_border_color(checkupFillWaterContainer, lv_palette_main(LV_PALETTE_GREEN), 0);
+                        lv_obj_set_style_border_opa(checkupFillWaterContainer, LV_OPA_TRANSP, 0);
+
+
+                                checkupFillWaterLabel = lv_label_create(checkupFillWaterContainer);         
+                                lv_label_set_text(checkupFillWaterLabel, checkupFillWaterMachine_text); 
+                                lv_obj_set_style_text_font(checkupFillWaterLabel, &lv_font_montserrat_18, 0);              
+                                lv_obj_align(checkupFillWaterLabel, LV_ALIGN_CENTER, 0, -20);
+                                lv_obj_set_style_text_align(checkupFillWaterLabel , LV_TEXT_ALIGN_CENTER, 0);
+                                lv_label_set_long_mode(checkupFillWaterLabel, LV_LABEL_LONG_WRAP);
+                                lv_obj_set_size(checkupFillWaterLabel, 235, LV_SIZE_CONTENT);
+
+
+
+                                checkupSkipButton = lv_button_create(checkupFillWaterContainer);
+                                lv_obj_set_size(checkupSkipButton, BUTTON_PROCESS_WIDTH, BUTTON_PROCESS_HEIGHT);
+                                lv_obj_align(checkupSkipButton, LV_ALIGN_BOTTOM_MID, 0, 10);
+                                lv_obj_add_event_cb(checkupSkipButton, event_checkup, LV_EVENT_CLICKED, checkupFillWaterContainer);
+                                lv_obj_set_style_bg_color(checkupSkipButton, lv_color_hex(GREEN_DARK), LV_PART_MAIN);
+                                lv_obj_move_foreground(checkupSkipButton);
+
+                                        checkupSkipButtonLabel = lv_label_create(checkupSkipButton);         
+                                        lv_label_set_text(checkupSkipButtonLabel, checkupSkip_text); 
+                                        lv_obj_set_style_text_font(checkupSkipButtonLabel, &lv_font_montserrat_22, 0);              
+                                        lv_obj_align(checkupSkipButtonLabel, LV_ALIGN_CENTER, 0, 0);
+                  }
+
+
+                  if(processStep == 2){
+                        checkupTargetTempsContainer = lv_obj_create(checkupStepContainer);
+                        lv_obj_remove_flag(checkupTargetTempsContainer, LV_OBJ_FLAG_SCROLLABLE); 
+                        lv_obj_align(checkupTargetTempsContainer, LV_ALIGN_TOP_LEFT, -18, -18);
+                        lv_obj_set_size(checkupTargetTempsContainer, 240, 265); 
+                        //lv_obj_set_style_border_color(checkupTargetTempsContainer, lv_palette_main(LV_PALETTE_GREEN), 0);
+                        lv_obj_set_style_border_opa(checkupTargetTempsContainer, LV_OPA_TRANSP, 0);
+
+
+                                checkupTargetTempContainer = lv_obj_create(checkupStepContainer);
+                                lv_obj_remove_flag(checkupTargetTempContainer, LV_OBJ_FLAG_SCROLLABLE); 
+                                lv_obj_align(checkupTargetTempContainer, LV_ALIGN_TOP_MID, 0, 0);
+                                lv_obj_set_size(checkupTargetTempContainer, 200, 80); 
+                                //lv_obj_set_style_border_color(checkupTargetTempContainer, lv_palette_main(LV_PALETTE_GREEN), 0);
+                                lv_obj_set_style_border_opa(checkupTargetTempContainer, LV_OPA_TRANSP, 0);
+
+                                        checkupTargetTempLabel = lv_label_create(checkupTargetTempContainer);         
+                                        lv_label_set_text(checkupTargetTempLabel, checkupTargetTemp_text); 
+                                        lv_obj_set_style_text_font(checkupTargetTempLabel, &lv_font_montserrat_18, 0);              
+                                        lv_obj_align(checkupTargetTempLabel, LV_ALIGN_CENTER, 0, -15);
+
+                                        checkupTargetTempValue = lv_label_create(checkupTargetTempContainer);         
+                                        lv_label_set_text(checkupTargetTempValue, "20.4°C"); 
+                                        lv_obj_set_style_text_font(checkupTargetTempValue, &lv_font_montserrat_20, 0);              
+                                        lv_obj_align(checkupTargetTempValue, LV_ALIGN_CENTER, 0, 20);
+
+
+                                checkupTargetWaterTempContainer = lv_obj_create(checkupStepContainer);
+                                lv_obj_remove_flag(checkupTargetWaterTempContainer, LV_OBJ_FLAG_SCROLLABLE); 
+                                lv_obj_align(checkupTargetWaterTempContainer, LV_ALIGN_BOTTOM_LEFT, 0, -50);
+                                lv_obj_set_size(checkupTargetWaterTempContainer, 100, 80); 
+                                //lv_obj_set_style_border_color(checkupTargetWaterTempContainer, lv_palette_main(LV_PALETTE_GREEN), 0);
+                                lv_obj_set_style_border_opa(checkupTargetWaterTempContainer, LV_OPA_TRANSP, 0);
+
+                                        checkupTargetWaterTempLabel = lv_label_create(checkupTargetWaterTempContainer);         
+                                        lv_label_set_text(checkupTargetWaterTempLabel, checkupWater_text); 
+                                        lv_obj_set_style_text_font(checkupTargetWaterTempLabel, &lv_font_montserrat_18, 0);              
+                                        lv_obj_align(checkupTargetWaterTempLabel, LV_ALIGN_CENTER, 0, -15);
+
+                                        checkupTargetWaterTempValue = lv_label_create(checkupTargetWaterTempContainer);         
+                                        lv_label_set_text(checkupTargetWaterTempValue, "15.4°C"); 
+                                        lv_obj_set_style_text_font(checkupTargetWaterTempValue, &lv_font_montserrat_20, 0);              
+                                        lv_obj_align(checkupTargetWaterTempValue, LV_ALIGN_CENTER, 0, 20);
+
+
+
+                                checkupTargetChemistryTempContainer = lv_obj_create(checkupStepContainer);
+                                lv_obj_remove_flag(checkupTargetChemistryTempContainer, LV_OBJ_FLAG_SCROLLABLE); 
+                                lv_obj_align(checkupTargetChemistryTempContainer, LV_ALIGN_BOTTOM_RIGHT, 0, -50);
+                                lv_obj_set_size(checkupTargetChemistryTempContainer, 100, 80); 
+                                //lv_obj_set_style_border_color(checkupTargetChemistryTempContainer, lv_palette_main(LV_PALETTE_GREEN), 0);
+                                lv_obj_set_style_border_opa(checkupTargetChemistryTempContainer, LV_OPA_TRANSP, 0);
+
+                                        checkupTargetChemistryTempLabel = lv_label_create(checkupTargetChemistryTempContainer);         
+                                        lv_label_set_text(checkupTargetChemistryTempLabel, checkupChemistry_text); 
+                                        lv_obj_set_style_text_font(checkupTargetChemistryTempLabel, &lv_font_montserrat_18, 0);              
+                                        lv_obj_align(checkupTargetChemistryTempLabel, LV_ALIGN_CENTER, 0, -15);
+
+                                        checkupTargetChemistryTempValue = lv_label_create(checkupTargetChemistryTempContainer);         
+                                        lv_label_set_text(checkupTargetChemistryTempValue, "49.8°C"); 
+                                        lv_obj_set_style_text_font(checkupTargetChemistryTempValue, &lv_font_montserrat_20, 0);              
+                                        lv_obj_align(checkupTargetChemistryTempValue, LV_ALIGN_CENTER, 0, 20);
+
+
+
+                                checkupSkipButton = lv_button_create(checkupTargetTempsContainer);
+                                lv_obj_set_size(checkupSkipButton, BUTTON_PROCESS_WIDTH, BUTTON_PROCESS_HEIGHT);
+                                lv_obj_align(checkupSkipButton, LV_ALIGN_BOTTOM_MID, 0, 10);
+                                lv_obj_add_event_cb(checkupSkipButton, event_checkup, LV_EVENT_CLICKED, checkupTargetWaterTempContainer);
+                                lv_obj_set_style_bg_color(checkupSkipButton, lv_color_hex(GREEN_DARK), LV_PART_MAIN);
+                                lv_obj_move_foreground(checkupSkipButton);
+
+                                        checkupSkipButtonLabel = lv_label_create(checkupSkipButton);         
+                                        lv_label_set_text(checkupSkipButtonLabel, checkupSkip_text); 
+                                        lv_obj_set_style_text_font(checkupSkipButtonLabel, &lv_font_montserrat_22, 0);              
+                                        lv_obj_align(checkupSkipButtonLabel, LV_ALIGN_CENTER, 0, 0);
+                  }
+
+                  if(processStep == 3){
+                        checkupFilmRotatingContainer = lv_obj_create(checkupStepContainer);
+                        lv_obj_remove_flag(checkupFilmRotatingContainer, LV_OBJ_FLAG_SCROLLABLE); 
+                        lv_obj_align(checkupFilmRotatingContainer, LV_ALIGN_TOP_LEFT, -18, -18);
+                        lv_obj_set_size(checkupFilmRotatingContainer, 240, 265); 
+                        //lv_obj_set_style_border_color(checkupFilmRotatingContainer, lv_palette_main(LV_PALETTE_GREEN), 0);
+                        lv_obj_set_style_border_opa(checkupFilmRotatingContainer, LV_OPA_TRANSP, 0);
+                        
+                  
+                                checkupTankIsPresentContainer = lv_obj_create(checkupFilmRotatingContainer);
+                                lv_obj_remove_flag(checkupTankIsPresentContainer, LV_OBJ_FLAG_SCROLLABLE); 
+                                lv_obj_align(checkupTankIsPresentContainer, LV_ALIGN_CENTER, 0, -50);
+                                lv_obj_set_size(checkupTankIsPresentContainer, 200, 80); 
+                                //lv_obj_set_style_border_color(checkupTankIsPresentContainer, lv_palette_main(LV_PALETTE_GREEN), 0);
+                                lv_obj_set_style_border_opa(checkupTankIsPresentContainer, LV_OPA_TRANSP, 0);
+
+                                        checkupTankIsPresentLabel = lv_label_create(checkupTankIsPresentContainer);         
+                                        lv_label_set_text(checkupTankIsPresentLabel, checkupTankPosition_text); 
+                                        lv_obj_set_style_text_font(checkupTankIsPresentLabel, &lv_font_montserrat_18, 0);              
+                                        lv_obj_align(checkupTankIsPresentLabel, LV_ALIGN_CENTER, 0, -15);
+
+                                        checkupTankIsPresentValue = lv_label_create(checkupTankIsPresentContainer);         
+                                        lv_label_set_text(checkupTankIsPresentValue, checkupYes_text); 
+                                        lv_obj_set_style_text_font(checkupTankIsPresentValue, &lv_font_montserrat_24, 0);              
+                                        lv_obj_align(checkupTankIsPresentValue, LV_ALIGN_CENTER, 0, 20);
+                  
+
+                                checkupFilmRotatingContainer = lv_obj_create(checkupFilmRotatingContainer);
+                                lv_obj_remove_flag(checkupFilmRotatingContainer, LV_OBJ_FLAG_SCROLLABLE); 
+                                lv_obj_align(checkupFilmRotatingContainer, LV_ALIGN_CENTER, 0, 60);
+                                lv_obj_set_size(checkupFilmRotatingContainer, 200, 80); 
+                                //lv_obj_set_style_border_color(checkupFilmRotatingContainer, lv_palette_main(LV_PALETTE_GREEN), 0);
+                                lv_obj_set_style_border_opa(checkupFilmRotatingContainer, LV_OPA_TRANSP, 0);
+
+                                        checkupFilmRotatingLabel = lv_label_create(checkupFilmRotatingContainer);         
+                                        lv_label_set_text(checkupFilmRotatingLabel, checkupFilmRotation_text); 
+                                        lv_obj_set_style_text_font(checkupFilmRotatingLabel, &lv_font_montserrat_18, 0);              
+                                        lv_obj_align(checkupFilmRotatingLabel, LV_ALIGN_CENTER, 0, -15);
+
+                                        checkupFilmRotatingValue = lv_label_create(checkupFilmRotatingContainer);         
+                                        lv_label_set_text(checkupFilmRotatingValue, checkupChecking_text); 
+                                        lv_obj_set_style_text_font(checkupFilmRotatingValue, &lv_font_montserrat_24, 0);              
+                                        lv_obj_align(checkupFilmRotatingValue, LV_ALIGN_CENTER, 0, 20);
+                  }
+
+                  if(processStep == 4){
+                        checkupProcessingContainer = lv_obj_create(checkupStepContainer);
+                        lv_obj_remove_flag(checkupProcessingContainer, LV_OBJ_FLAG_SCROLLABLE); 
+                        lv_obj_align(checkupProcessingContainer, LV_ALIGN_TOP_LEFT, -18, -18);
+                        lv_obj_set_size(checkupProcessingContainer, 240, 265); 
+                        //lv_obj_set_style_border_color(checkupProcessingContainer, lv_palette_main(LV_PALETTE_GREEN), 0);
+                        lv_obj_set_style_border_opa(checkupProcessingContainer, LV_OPA_TRANSP, 0);
+                        
+
+                                checkupStepTimeLeftValue = lv_label_create(checkupProcessingContainer);         
+                                lv_label_set_text(checkupStepTimeLeftValue, "20sec"); 
+                                lv_obj_set_style_text_font(checkupStepTimeLeftValue, &lv_font_montserrat_20, 0);              
+                                lv_obj_align(checkupStepTimeLeftValue, LV_ALIGN_CENTER, 0, -60);
+
+                                checkupStepNameValue = lv_label_create(checkupProcessingContainer);         
+                                lv_label_set_text(checkupStepNameValue, testLongString); 
+                                lv_obj_set_style_text_font(checkupStepNameValue, &lv_font_montserrat_22, 0);              
+                                lv_obj_align(checkupStepNameValue, LV_ALIGN_CENTER, 0, -40);
+                                lv_obj_set_width(checkupStepNameValue, 130);
+                                lv_label_set_long_mode(checkupStepNameValue, LV_LABEL_LONG_SCROLL_CIRCULAR);
+
+                                checkupStepKindValue = lv_label_create(checkupProcessingContainer);         
+                                lv_label_set_text(checkupStepKindValue, &currentStep[1][0]); 
+                                lv_obj_set_style_text_font(checkupStepKindValue, &lv_font_montserrat_20, 0);              
+                                lv_obj_align(checkupStepKindValue, LV_ALIGN_CENTER, 0, 10);
+
+                                checkupProcessTimeLeftValue = lv_label_create(checkupProcessingContainer);         
+                                lv_label_set_text(checkupProcessTimeLeftValue, "20min 45sec"); 
+                                lv_obj_set_style_text_font(checkupProcessTimeLeftValue, &lv_font_montserrat_24, 0);              
+                                lv_obj_align(checkupProcessTimeLeftValue, LV_ALIGN_CENTER, 0, 30);
+                              
+                                processArc = lv_arc_create(checkupProcessingContainer);
+                                lv_obj_set_size(processArc, 220, 220);
+                                lv_arc_set_rotation(processArc, 140);
+                                lv_arc_set_bg_angles(processArc, 0, 260);
+                                lv_arc_set_value(processArc, 10);
+                                lv_obj_align(processArc, LV_ALIGN_CENTER, 0, 10);
+                                lv_obj_remove_style(processArc, NULL, LV_PART_KNOB);
+                                lv_obj_remove_flag(processArc, LV_OBJ_FLAG_CLICKABLE);
+                                lv_obj_set_style_arc_color(processArc,lv_color_hex(GREEN) , LV_PART_INDICATOR);
+                                lv_obj_set_style_arc_color(processArc, lv_color_hex(GREEN_DARK), LV_PART_MAIN);
+
+                                stepArc = lv_arc_create(checkupProcessingContainer);
+                                lv_obj_set_size(stepArc, 220, 220);
+                                lv_arc_set_rotation(stepArc, 230);
+                                lv_arc_set_bg_angles(stepArc, 0, 80);
+                                lv_arc_set_value(stepArc, 20);
+                                lv_obj_align(stepArc, LV_ALIGN_CENTER, 0, 160);
+                                lv_obj_remove_style(stepArc, NULL, LV_PART_KNOB);
+                                lv_obj_remove_flag(stepArc, LV_OBJ_FLAG_CLICKABLE);
+                                lv_obj_set_style_arc_color(stepArc,lv_color_hex(ORANGE_LIGHT) , LV_PART_INDICATOR);
+                                lv_obj_set_style_arc_color(stepArc, lv_color_hex(ORANGE_DARK), LV_PART_MAIN);
+                                lv_obj_move_foreground(stepArc);
+
+                  }
 }
 
 

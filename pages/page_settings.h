@@ -106,7 +106,7 @@ void event_settingPopupMBox(lv_event_t * e){
 
 void event_settings_handler(lv_event_t * e)
 {
-   uint32_t * active_id = (uint32_t *)lv_event_get_user_data(e);
+    uint32_t * active_id = (uint32_t *)lv_event_get_user_data(e);
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t * cont = (lv_obj_t *)lv_event_get_current_target(e);
     lv_obj_t * act_cb = (lv_obj_t *)lv_event_get_target(e);

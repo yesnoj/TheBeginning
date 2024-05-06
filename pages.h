@@ -35,19 +35,6 @@ extern "C" {
 #include "pages/page_menu.h"
 #include "pages/page_home.h"
 
-
-//OLD GUI APPROACH
-/*
-#include "pages/OldGuiApproach/page_program.h"
-#include "pages/OldGuiApproach/page_tankSize.h"
-#include "pages/OldGuiApproach/page_cleaning.h"
-#include "pages/OldGuiApproach/page_developing.h"
-#include "pages/OldGuiApproach/page_films.h"
-*/
-
-//always after the include pages above
-//#include "display_manager.h"
-
 /*********************
  *      DEFINES
  *********************/

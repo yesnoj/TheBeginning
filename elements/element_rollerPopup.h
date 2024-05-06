@@ -45,7 +45,7 @@ static void event_Roller(lv_event_t * e)
             if(data == tempSensorTuneButton){
               LV_LOG_USER("SET BUTTON from tempSensorTuneButton");
               lv_style_reset(&style_mBoxRollerTitleLine);
-              lv_style_reset(&style_rollerTemp);
+              lv_style_reset(&style_roller);
               lv_msgbox_close(godFatherCont);
               lv_obj_delete(godFatherCont);
             }
@@ -54,7 +54,7 @@ static void event_Roller(lv_event_t * e)
               itoa(rolleTempSelected, tempBuffer, 10);
               lv_style_reset(&style_mBoxRollerTitleLine);
               lv_textarea_set_text(processTempTextArea,tempBuffer);
-              lv_style_reset(&style_rollerTemp);
+              lv_style_reset(&style_roller);
               lv_msgbox_close(godFatherCont);
               lv_obj_delete(godFatherCont);
             }
@@ -63,7 +63,7 @@ static void event_Roller(lv_event_t * e)
               
               lv_style_reset(&style_mBoxRollerTitleLine);
               lv_textarea_set_text(processToleranceTextArea, tempBuffer);
-              lv_style_reset(&style_rollerTemp);
+              lv_style_reset(&style_roller);
               lv_msgbox_close(godFatherCont);
               lv_obj_delete(godFatherCont);
             }
@@ -72,7 +72,7 @@ static void event_Roller(lv_event_t * e)
               
               lv_style_reset(&style_mBoxRollerTitleLine);
               lv_textarea_set_text(stepDetailMinTextArea, tempBuffer);
-              lv_style_reset(&style_rollerTemp);
+              lv_style_reset(&style_roller);
               lv_msgbox_close(godFatherCont);
               lv_obj_delete(godFatherCont);
             }
@@ -81,7 +81,16 @@ static void event_Roller(lv_event_t * e)
               
               lv_style_reset(&style_mBoxRollerTitleLine);
               lv_textarea_set_text(stepDetailSecTextArea, tempBuffer);
-              lv_style_reset(&style_rollerTemp);
+              lv_style_reset(&style_roller);
+              lv_msgbox_close(godFatherCont);
+              lv_obj_delete(godFatherCont);
+            }
+            if(data == checkupTankSizeTextArea){
+              LV_LOG_USER("SET BUTTON from checkupTankSizeTextArea");
+              
+              lv_style_reset(&style_mBoxRollerTitleLine);
+              lv_textarea_set_text(checkupTankSizeTextArea, tempBuffer);
+              lv_style_reset(&style_roller);
               lv_msgbox_close(godFatherCont);
               lv_obj_delete(godFatherCont);
             }
@@ -89,7 +98,7 @@ static void event_Roller(lv_event_t * e)
     }
 
     if(code == LV_EVENT_VALUE_CHANGED){
-      if(obj == tempRoller){
+      if(obj == roller){
           //if we want to want the index of the selected element
           rolleTempSelected = lv_roller_get_selected(obj) + 1;
           LV_LOG_USER("ROLLER value: %d", rolleTempSelected);
@@ -149,22 +158,22 @@ void rollerPopupCreate(const char * tempOptions,const char * popupTitle, lv_obj_
   lv_obj_remove_flag(mBoxRollerContainer, LV_OBJ_FLAG_SCROLLABLE);
 
   
-  lv_style_init(&style_rollerTemp);
-  lv_style_set_text_font(&style_rollerTemp, &lv_font_montserrat_30);
-  lv_style_set_bg_color(&style_rollerTemp, lv_color_hex(LIGHT_BLUE));
-  lv_style_set_border_width(&style_rollerTemp, 2);
-  lv_style_set_border_color(&style_rollerTemp, lv_color_hex(LIGHT_BLUE_DARK));
+  lv_style_init(&style_roller);
+  lv_style_set_text_font(&style_roller, &lv_font_montserrat_30);
+  lv_style_set_bg_color(&style_roller, lv_color_hex(LIGHT_BLUE));
+  lv_style_set_border_width(&style_roller, 2);
+  lv_style_set_border_color(&style_roller, lv_color_hex(LIGHT_BLUE_DARK));
   
-  tempRoller = lv_roller_create(mBoxRollerRollerContainer);
-  lv_roller_set_options(tempRoller, tempOptions, LV_ROLLER_MODE_NORMAL);
-  lv_roller_set_visible_row_count(tempRoller, 4);
-  lv_obj_set_width(tempRoller, 120);
-  lv_obj_set_height(tempRoller, 100);
-  lv_obj_align(tempRoller, LV_ALIGN_CENTER, 0, -30);
-  lv_obj_add_event_cb(tempRoller, event_Roller, LV_EVENT_ALL, NULL);
-  lv_obj_add_style(tempRoller, &style_rollerTemp, LV_PART_SELECTED);  
-  lv_roller_set_selected(tempRoller, 0, LV_ANIM_OFF);   
-  lv_obj_set_style_border_color(tempRoller, lv_color_hex(WHITE), LV_PART_MAIN);
+  roller = lv_roller_create(mBoxRollerRollerContainer);
+  lv_roller_set_options(roller, tempOptions, LV_ROLLER_MODE_NORMAL);
+  lv_roller_set_visible_row_count(roller, 4);
+  lv_obj_set_width(roller, 140);
+  lv_obj_set_height(roller, 100);
+  lv_obj_align(roller, LV_ALIGN_CENTER, 0, -30);
+  lv_obj_add_event_cb(roller, event_Roller, LV_EVENT_ALL, NULL);
+  lv_obj_add_style(roller, &style_roller, LV_PART_SELECTED);  
+  lv_roller_set_selected(roller, 0, LV_ANIM_OFF);   
+  lv_obj_set_style_border_color(roller, lv_color_hex(WHITE), LV_PART_MAIN);
 
    mBoxRollerButton = lv_button_create(mBoxRollerRollerContainer);
    lv_obj_set_size(mBoxRollerButton, BUTTON_TUNE_WIDTH, BUTTON_TUNE_HEIGHT);

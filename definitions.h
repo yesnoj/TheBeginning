@@ -340,8 +340,8 @@ char currentStep[3][11]  = {"Filling","Draining","Processing"};
 char rollerElementSelected [10];
 uint8_t rolleTempSelected = 0;
 lv_obj_t * questionMark;
-lv_obj_t * tempRoller;
-lv_style_t style_rollerTemp;
+lv_obj_t * roller;
+lv_style_t style_roller;
 lv_style_t textAreaStyle;
 char tempBuffer [10];
 
@@ -350,12 +350,14 @@ char tempBuffer [10];
 * Checkup strings/vars
 *********************/
 char checkupNexStepsTitle_text [12] = {"Next steps:"};
-char checkupProcessReady_text [30] = {"The process is ready to start"};
+char checkupProcessReady_text [20] = {"Process starting..."};
 char checkupTheMachineWillDo_text [18] = {"The machine will:"};
 char checkupFillWater_text [20] = {"Fill the water bath"};
 char checkupTankRotation_text [38] = {"Check tank presence and film rotation"};
 char checkupReachTemp_text [39] = {"Reach the chemistry target temperature"};
 char checkupStop_text [5] = {"Stop"};
+char checkupStart_text [6] = {"Start"};
+char checkupSkip_text [6] = {"Skip"};
 char checkupStopNow_text [10] = {"Stop now!"};
 char checkupStopAfter_text [21] = {"Stop after!"};
 char checkupProcessingTitle_text [12] = {"Processing:"};
@@ -363,6 +365,34 @@ char checkupStepSource_text [13] = {"Step source:"};
 char checkupTempControl_text [15] = {"Temp. control:"};
 char checkupWaterTemp_text [12] = {"Water temp:"};
 char checkupNextStep_text [11] = {"Next step:"};
+char checkupSelectBeforeStart_text [72] = {"Select the tank size and chemistry amount and click the 'Start' button"};
+char checkupTankSize_text [17] = {"Select tank size"};
+char checkupChemistryVolume_text [24] = {"Select chemistry volume"};
+char checkupMinimumChemistry_text [35] = {"Minimum required chemistry : 500ml"};
+char checkupFillWaterMachine_text [111] = {"The machine is not connected to a water source.\n\nFill the water bath manually up to the top water level sensor"};
+char checkupTargetTemp_text [19] = {"Target temperature"};
+char checkupWater_text [6] = {"Water"};
+char checkupChemistry_text [10] = {"Chemistry"};
+char checkupTankPosition_text [21] = {"Tank is in position:"};
+char checkupFilmRotation_text [18] = {"Film is rotating:"};
+char checkupYes_text [4] = {"Yes"};
+char checkupNo_text [3] = {"No"};
+char checkupChecking_text [12] = {"Checking..."};
+
+const char * checkupTankSizesList = "Small\n"
+                                    "Medium\n"
+                                    "Large";
+
+uint16_t tankFullSizes [3] = {500, 700, 1000}; 
+uint16_t tankLowSizes  [3] = {250, 350, 550}; 
+
+uint8_t tankFullFillDrainTimes [3] = {15, 19, 25}; 
+uint8_t tankLowFillDrainTimes  [3] = {8, 11, 16}; 
+
+static lv_obj_t * checkupTankSizeTextArea;
+char checkupTankSizePlaceHolder_text [5] = {"Size"};
+char checkupChemistryLowVol_text [4] = {"Low"};
+char checkupChemistryHighVol_text [5] = {"High"};
 
 SPIClass SD_SPI;
 
