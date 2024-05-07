@@ -21,10 +21,8 @@ extern "C" {
 #endif
 
 
-//ESSENTIAL INCLUDE
 
-//ACCESSORY INCLUDES
-
+/* PROCESS DETAIL VARIABLES*/
 static lv_obj_t * processDetailContainer;
 static lv_obj_t * processDetailNameContainer;
 static lv_obj_t * processStepsContainer;
@@ -61,20 +59,16 @@ static lv_obj_t * processNewStepButton;
 
 static uint8_t isColor = 0;
 static uint8_t isSaved = 0;
+static uint8_t somethingChanged = 0;
+static uint8_t stepsCreated = 0;
+
+static lv_obj_t * processesContainer;
 
 
 
-static char * optionstest;
-
-static void event_processDetail_style_delete(lv_event_t * e)
-{
-    lv_event_code_t code = lv_event_get_code(e);
-
-    if(code == LV_EVENT_DELETE) {
-        //list of all styles to be reset, so clean the memory.
-        lv_style_reset(&textAreaStyle);
-    }
-}
+/******************************
+  *    PROCESS EVENT
+******************************/
 
 static void event_processDetail(lv_event_t * e)
 {
@@ -97,12 +91,24 @@ static void event_processDetail(lv_event_t * e)
         lv_obj_set_style_text_color(processColorLabel, lv_color_hex(GREEN_DARK), LV_PART_MAIN);
         lv_obj_set_style_text_color(processBnWLabel, lv_color_hex(WHITE), LV_PART_MAIN);
         isColor = 1;
+        somethingChanged = 1;
+
+        if(stepsCreated > 0){
+          lv_obj_clear_state(processSaveLabel, LV_STATE_DISABLED);
+          lv_obj_set_style_text_color(processSaveLabel, lv_color_hex(WHITE), LV_PART_MAIN);
+        }
+
         LV_LOG_USER("Pressed processColorLabel");
     }
     if(data == processBnWLabel){
         lv_obj_set_style_text_color(processBnWLabel, lv_color_hex(GREEN_DARK), LV_PART_MAIN);
         lv_obj_set_style_text_color(processColorLabel, lv_color_hex(WHITE), LV_PART_MAIN);
         isColor = 0;
+        somethingChanged = 1;
+        if(stepsCreated > 0){
+          lv_obj_clear_state(processSaveLabel, LV_STATE_DISABLED);
+          lv_obj_set_style_text_color(processSaveLabel, lv_color_hex(WHITE), LV_PART_MAIN);
+        }
         LV_LOG_USER("Pressed processBnWLabel");
     }
 
@@ -110,27 +116,37 @@ static void event_processDetail(lv_event_t * e)
         if(isPreferred == 0){
           lv_obj_set_style_text_color(processPreferredLabel, lv_color_hex(RED), LV_PART_MAIN);
           isPreferred = 1;
+          somethingChanged = 1;
+
+          if(stepsCreated > 0){
+            lv_obj_clear_state(processSaveLabel, LV_STATE_DISABLED);
+            lv_obj_set_style_text_color(processSaveLabel, lv_color_hex(WHITE), LV_PART_MAIN);
+          }
         }
         else{
           lv_obj_set_style_text_color(processPreferredLabel, lv_color_hex(WHITE), LV_PART_MAIN);
           isPreferred = 0;
         }
-        LV_LOG_USER("Pressed processPreferredLabel");
+        LV_LOG_USER("Process is preferred :%d",isPreferred);
     }
-    if(data == processSaveLabel){
+    if(data == processSaveLabel && stepsCreated > 0){
         if(isSaved == 0){
-          lv_obj_set_style_text_color(processSaveLabel, lv_color_hex(GREEN), LV_PART_MAIN);
           isSaved = 1;
+          somethingChanged = 0;
+          lv_obj_clear_state(processRunButton, LV_STATE_DISABLED);
+
+          lv_obj_set_style_text_color(processSaveLabel, lv_color_hex(GREY), LV_PART_MAIN);
+          lv_obj_add_state(processSaveLabel, LV_STATE_DISABLED);
+          processElementCreate(processesContainer);
         }
         else{
-          lv_obj_set_style_text_color(processSaveLabel, lv_color_hex(WHITE), LV_PART_MAIN);
           isSaved = 0;
         }
         LV_LOG_USER("Pressed processSaveLabel");
     }
     if(data == processDeleteButton){
         stepCounter = 0;
-        messagePopupCreate(deletePopupTitle_text,deletePopupBody_text, processDetailParent);
+        messagePopupCreate(deletePopupTitle_text,deletePopupBody_text, deleteButton_text, stepDetailCancel_text, processDetailParent);
         LV_LOG_USER("Pressed processDeleteButton");
     }
     if(data == processRunButton){
@@ -142,11 +158,17 @@ static void event_processDetail(lv_event_t * e)
     }
     if(data == processNewStepButton){
         LV_LOG_USER("Pressed processNewStepButton");
-        //stepElementCreate(processStepsContainer);
+        stepsCreated += 1;
+        somethingChanged = 1;
+        lv_obj_clear_state(processSaveLabel, LV_STATE_DISABLED);
+
+        if(stepsCreated > 0){
+          lv_obj_clear_state(processSaveLabel, LV_STATE_DISABLED);
+          lv_obj_set_style_text_color(processSaveLabel, lv_color_hex(WHITE), LV_PART_MAIN);
+        }
+
         stepDetail(processStepsContainer);
     }
-
-
   }
 
   if(code == LV_EVENT_LONG_PRESSED_REPEAT){
@@ -156,6 +178,12 @@ static void event_processDetail(lv_event_t * e)
   if(code == LV_EVENT_VALUE_CHANGED) {
       if(data == processTempControlSwitch){
           LV_LOG_USER("Temperature controlled : %s", lv_obj_has_state(obj, LV_STATE_CHECKED) ? "On" : "Off");
+          somethingChanged = 1;
+
+          if(stepsCreated > 0){
+            lv_obj_clear_state(processSaveLabel, LV_STATE_DISABLED);
+            lv_obj_set_style_text_color(processSaveLabel, lv_color_hex(WHITE), LV_PART_MAIN);
+          }
       }
   }
 
@@ -169,18 +197,36 @@ static void event_processDetail(lv_event_t * e)
           rollerPopupCreate(tempCelsiusToleranceOptions,tuneTempPopupTitle_text,processToleranceTextArea);
       }
   }
-
 }
  
+static void event_processDetail_style_delete(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+
+    if(code == LV_EVENT_DELETE) {
+        //list of all styles to be reset, so clean the memory.
+        lv_style_reset(&textAreaStyle);
+    }
+}
 
 
 
-void processDetail(void)
+/*********************
+  *    PROCESS DETAIL
+*********************/
+
+static void processDetail(lv_obj_t * referenceProcess)
 {   
 /*********************
   *    PAGE HEADER
 *********************/
   LV_LOG_USER("Process detail creation");
+  isColor = 0;
+  isSaved = 0;
+  somethingChanged = 0;
+  stepsCreated = 0;
+
+  processesContainer = referenceProcess;
 
   processDetailParent = lv_obj_class_create_obj(&lv_msgbox_backdrop_class, lv_layer_top());
   lv_obj_class_init_obj(processDetailParent);
@@ -286,7 +332,7 @@ void processDetail(void)
                           lv_obj_align(processTempControlSwitch, LV_ALIGN_RIGHT_MID, 15, 0);
                           lv_obj_set_style_bg_color(processTempControlSwitch, lv_palette_darken(LV_PALETTE_GREY, 3), LV_STATE_DEFAULT);
                           lv_obj_set_style_bg_color(processTempControlSwitch,  lv_palette_main(LV_PALETTE_GREEN), LV_PART_KNOB | LV_STATE_DEFAULT);
-                          lv_obj_set_style_bg_color(processTempControlSwitch, lv_color_hex(WHITE) , LV_PART_INDICATOR | LV_STATE_CHECKED);
+                          lv_obj_set_style_bg_color(processTempControlSwitch, lv_color_hex(GREEN_DARK) , LV_PART_INDICATOR | LV_STATE_CHECKED);
 
 
                  
@@ -412,14 +458,17 @@ void processDetail(void)
                   lv_obj_set_style_text_font(processSaveLabel, &FilMachineFontIcons_30, 0);              
                   lv_obj_align(processSaveLabel, LV_ALIGN_TOP_LEFT, 150, 140);
                   lv_obj_add_flag(processSaveLabel, LV_OBJ_FLAG_CLICKABLE);
+                  lv_obj_add_state(processSaveLabel, LV_STATE_DISABLED);
                   lv_obj_add_event_cb(processSaveLabel, event_processDetail, LV_EVENT_CLICKED, processSaveLabel);
-
+                  lv_obj_set_style_text_color(processSaveLabel, lv_color_hex(GREY), LV_PART_MAIN);
 
                   processDeleteButton = lv_button_create(processDetailContainer);
                   lv_obj_set_size(processDeleteButton, BUTTON_PROCESS_WIDTH, BUTTON_PROCESS_HEIGHT);
                   lv_obj_align(processDeleteButton, LV_ALIGN_BOTTOM_RIGHT, -103, 10);
                   lv_obj_add_event_cb(processDeleteButton, event_processDetail, LV_EVENT_CLICKED, processDeleteButton);
                   lv_obj_set_style_bg_color(processDeleteButton, lv_color_hex(RED_DARK), LV_PART_MAIN);
+                  lv_obj_add_state(processDeleteButton, LV_STATE_DISABLED);
+
 
                           processDeleteLabel = lv_label_create(processDeleteButton);         
                           lv_label_set_text(processDeleteLabel, trash_Icon); 
@@ -427,11 +476,16 @@ void processDetail(void)
                           lv_obj_align(processDeleteLabel, LV_ALIGN_CENTER, 0, 0);
                           lv_obj_add_flag(processDeleteLabel, LV_OBJ_FLAG_CLICKABLE);
 
+                  
                   processRunButton = lv_button_create(processDetailContainer);
                   lv_obj_set_size(processRunButton, BUTTON_PROCESS_WIDTH, BUTTON_PROCESS_HEIGHT);
                   lv_obj_align(processRunButton, LV_ALIGN_BOTTOM_RIGHT, 10, 10);
                   lv_obj_add_event_cb(processRunButton, event_processDetail, LV_EVENT_CLICKED, processRunButton);
                   lv_obj_set_style_bg_color(processRunButton, lv_color_hex(GREEN_DARK), LV_PART_MAIN);
+                  if(stepsCreated == 0)
+                      lv_obj_add_state(processRunButton, LV_STATE_DISABLED);
+                  else
+                      lv_obj_clear_state(processRunButton, LV_STATE_DISABLED);
 
                           processRunLabel = lv_label_create(processRunButton);         
                           lv_label_set_text(processRunLabel, play_Icon); 

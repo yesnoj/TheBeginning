@@ -12,6 +12,7 @@
 #include "core/lv_obj_style.h"
 #include "misc/lv_area.h"
 
+
 #ifndef ELEMENT_ROLLERPOPUP_H
 #define ELEMENT_ROLLERPOPUP_H
 
@@ -43,23 +44,24 @@ static void event_Roller(lv_event_t * e)
         if(obj == mBoxRollerButton)
         {
             if(data == tempSensorTuneButton){
-              LV_LOG_USER("SET BUTTON from tempSensorTuneButton");
+              LV_LOG_USER("SET BUTTON from tempSensorTuneButton value %d:",rolleTempSelected);
               lv_style_reset(&style_mBoxRollerTitleLine);
               lv_style_reset(&style_roller);
               lv_msgbox_close(godFatherCont);
               lv_obj_delete(godFatherCont);
             }
             if(data == processTempTextArea){
-              LV_LOG_USER("SET BUTTON from processTempTextArea");
+              LV_LOG_USER("SET BUTTON from processTempTextArea value %d:",rolleTempSelected);
               itoa(rolleTempSelected, tempBuffer, 10);
               lv_style_reset(&style_mBoxRollerTitleLine);
               lv_textarea_set_text(processTempTextArea,tempBuffer);
               lv_style_reset(&style_roller);
+              
               lv_msgbox_close(godFatherCont);
               lv_obj_delete(godFatherCont);
             }
             if(data == processToleranceTextArea){
-              LV_LOG_USER("SET BUTTON from processToleranceTextArea");
+              LV_LOG_USER("SET BUTTON from processToleranceTextArea value %d:",rolleTempSelected);
               
               lv_style_reset(&style_mBoxRollerTitleLine);
               lv_textarea_set_text(processToleranceTextArea, tempBuffer);
@@ -68,7 +70,7 @@ static void event_Roller(lv_event_t * e)
               lv_obj_delete(godFatherCont);
             }
             if(data == stepDetailMinTextArea){
-              LV_LOG_USER("SET BUTTON from processToleranceTextArea");
+              LV_LOG_USER("SET BUTTON from stepDetailMinTextArea value %d:",rolleTempSelected);
               
               lv_style_reset(&style_mBoxRollerTitleLine);
               lv_textarea_set_text(stepDetailMinTextArea, tempBuffer);
@@ -77,7 +79,7 @@ static void event_Roller(lv_event_t * e)
               lv_obj_delete(godFatherCont);
             }
             if(data == stepDetailSecTextArea){
-              LV_LOG_USER("SET BUTTON from processToleranceTextArea");
+              LV_LOG_USER("SET BUTTON from stepDetailSecTextArea value %d:",rolleTempSelected);
               
               lv_style_reset(&style_mBoxRollerTitleLine);
               lv_textarea_set_text(stepDetailSecTextArea, tempBuffer);
@@ -86,7 +88,7 @@ static void event_Roller(lv_event_t * e)
               lv_obj_delete(godFatherCont);
             }
             if(data == checkupTankSizeTextArea){
-              LV_LOG_USER("SET BUTTON from checkupTankSizeTextArea");
+              LV_LOG_USER("SET BUTTON from checkupTankSizeTextArea value %d:",rolleTempSelected);
               
               lv_style_reset(&style_mBoxRollerTitleLine);
               lv_textarea_set_text(checkupTankSizeTextArea, tempBuffer);
@@ -117,7 +119,7 @@ void rollerPopupCreate(const char * tempOptions,const char * popupTitle, lv_obj_
   /*********************
   *    PAGE HEADER
   *********************/
-   LV_LOG_USER("Tune popup create");  
+   LV_LOG_USER("Roller popup create");  
    mBoxRollerParent = lv_obj_class_create_obj(&lv_msgbox_backdrop_class, lv_layer_top());
    lv_obj_class_init_obj(mBoxRollerParent);
    lv_obj_remove_flag(mBoxRollerParent, LV_OBJ_FLAG_IGNORE_LAYOUT);

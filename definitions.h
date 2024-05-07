@@ -333,7 +333,7 @@ char deleteButton_text [7] = {"Delete"};
 char deletePopupTitle_text [15] = {"Delete element"};
 char deletePopupBody_text [45] = {"Are you sure to delete the selected element?"};
 char warningPopupLowWaterTitle_text [151] = {"The water level is too low!Temperature control has been suspended\nRefill the water bath immediately to correct resume the temperature control process"};
-char stopProcessPopupBody_text [223] = {"WARNING!Stopping a process halfway through without waiting for the end of the step will probably ruin the film inside the tank and leave the chemistry inside the machine!\nDo you really want to stop the process right now?"};
+char stopProcessPopupBody_text [124] = {"Stopping a process will ruin the film inside the tank and leave the chemistry inside!\nDo you want to stop the process now?"};
 
 char currentStep[3][11]  = {"Filling","Draining","Processing"};
 
@@ -383,6 +383,10 @@ const char * checkupTankSizesList = "Small\n"
                                     "Medium\n"
                                     "Large";
 
+
+const char * checkupStepStatuses [3][14] = {"\xEF\x86\x92", "\xEF\x81\xA1", "\xEF\x80\x8C"};  //dotStep_Icon, arrowStep_Icon, checkStep_icon
+
+
 uint16_t tankFullSizes [3] = {500, 700, 1000}; 
 uint16_t tankLowSizes  [3] = {250, 350, 550}; 
 
@@ -428,7 +432,6 @@ lv_obj_t * newTabSelected = NULL;
 lv_obj_t * processesSection = NULL;
 lv_obj_t * processFilterButton;
 lv_obj_t * newProcessButton;
-lv_obj_t * processesList;
 lv_obj_t * processElement;
 lv_obj_t * stepElement;
 

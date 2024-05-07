@@ -20,6 +20,7 @@ extern "C" {
 #endif
 
 //ESSENTIAL INCLUDES
+//#include "../pages/page_stepDetail.h"
 
 //ACCESSORY INCLUDES
 
@@ -32,7 +33,6 @@ static lv_obj_t * stepTimeIcon;
 static lv_obj_t * stepTypeIcon;
 
 
-
 static void event_stepElement(lv_event_t * e){
   lv_event_code_t code = lv_event_get_code(e);
   lv_obj_t * obj = (lv_obj_t *)lv_event_get_target(e);
@@ -42,12 +42,12 @@ static void event_stepElement(lv_event_t * e){
   if(obj == stepElementSummary){
       if(code == LV_EVENT_CLICKED) {    
         LV_LOG_USER("Process Element Details");
-        //stepDetail(stepElement); //won't work, cause definition in pages.h
+        //stepDetail(stepElement); //won't work, cause definition in pages.h. Here we want to call stepDetail, but this is not defined, because in page.h is defined after element_step.h
       }
       if(code == LV_EVENT_LONG_PRESSED_REPEAT) {    
         if(mBoxPopupParent == NULL){
         LV_LOG_USER("Long press element");
-        messagePopupCreate(deletePopupTitle_text,deletePopupBody_text, stepElement);
+        messagePopupCreate(deletePopupTitle_text,deletePopupBody_text, deleteButton_text, stepDetailCancel_text, stepElement);
       }
     }
   }

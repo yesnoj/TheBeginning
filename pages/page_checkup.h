@@ -44,6 +44,7 @@ static lv_obj_t * checkupTargetWaterTempContainer;
 static lv_obj_t * checkupTargetChemistryTempContainer;
 static lv_obj_t * checkupTankIsPresentContainer;
 static lv_obj_t * checkupFilmRotatingContainer;
+static lv_obj_t * checkupFilmInPositionContainer;
 static lv_obj_t * checkupProcessingContainer;
 
 
@@ -103,12 +104,18 @@ static lv_obj_t * checkupStopNowButton;
 static lv_obj_t * checkupStopStepsButton;
 static lv_obj_t * checkupCloseButton;
 
-static uint8_t  isProcessing = 1; // 0 or 1
-static uint8_t  processStep = 4;//0 or 1 or 2 or 3 or 4
+static uint8_t  isProcessing = 0; // 0 or 1
+static uint8_t  processStep = 0;//0 or 1 or 2 or 3 or 4
 static uint32_t activeVolume_index = 0;
+
+static uint8_t  stepFillWaterStatus = 0;
+static uint8_t  stepReachTempStatus = 0;
+static uint8_t  stepCheckFilmStatus = 0;
 
 static lv_obj_t * stepArc;
 static lv_obj_t * processArc;
+
+void checkup();
 
 void event_checkup(lv_event_t * e){
   lv_event_code_t code = lv_event_get_code(e);
@@ -136,15 +143,82 @@ void event_checkup(lv_event_t * e){
         lv_obj_remove_state(old_cb, LV_STATE_CHECKED);
         lv_obj_add_state(act_cb, LV_STATE_CHECKED); 
         *active_id = lv_obj_get_index(act_cb);
-        LV_LOG_USER("Selected chemistry volume radio buttons: %d", (int)active_index);
+        LV_LOG_USER("Selected chemistry volume radio buttons: %d", (int)activeVolume_index);
    }
+  }
+
+  if(code == LV_EVENT_CLICKED){
+    if(obj == checkupStartButton){
+      if(data == checkupSelectTankChemistryContainer){
+        LV_LOG_USER("User pressed checkupStartButton on Step 0");
+        isProcessing = 0;
+        processStep = 1;
+        stepFillWaterStatus = 1;
+        stepReachTempStatus = 0;
+        stepCheckFilmStatus = 0;
+        checkup();
+      }
+
+      if(data == checkupFilmRotatingContainer){
+        LV_LOG_USER("User pressed checkupStartButton on Step 3");
+        isProcessing = 1;
+        processStep = 4;
+        stepFillWaterStatus = 2;
+        stepReachTempStatus = 2;
+        stepCheckFilmStatus = 2;
+        checkup();
+      }
+  }
+    if(obj == checkupSkipButton){
+      if(data == checkupFillWaterContainer){
+        LV_LOG_USER("User pressed checkupSkipButton on Step 1");
+        isProcessing = 0;
+        processStep = 2;
+        stepFillWaterStatus = 2;
+        stepReachTempStatus = 1;
+        stepCheckFilmStatus = 0;
+        checkup();
+      }
+      if(data == checkupTargetWaterTempContainer){
+        LV_LOG_USER("User pressed checkupSkipButton on Step 2");
+        isProcessing = 0;
+        processStep = 3;
+        stepFillWaterStatus = 2;
+        stepReachTempStatus = 2;
+        stepCheckFilmStatus = 1;
+        checkup();
+      
+      }
+    }
+
+    if(obj == checkupCloseButton){
+        LV_LOG_USER("User pressed checkupCloseButtonLabel");
+        lv_msgbox_close(mboxCont);
+        lv_obj_delete(mboxCont);
+    }
+    if(obj == checkupStopAfterButton){
+        LV_LOG_USER("User pressed checkupStopAfterButton");
+        messagePopupCreate(warningPopupTitle_text,stopProcessPopupBody_text,checkupStop_text,stepDetailCancel_text, checkupParent);
+    }
+    if(obj == checkupStopNowButton){
+        LV_LOG_USER("User pressed checkupStopNowButton");
+        messagePopupCreate(warningPopupTitle_text,stopProcessPopupBody_text,checkupStop_text,stepDetailCancel_text, checkupParent);
+    }
+    if(obj == checkupStopStepsButton){
+        LV_LOG_USER("User pressed checkupStopStepsButton");
+        lv_msgbox_close(mboxParent);
+        lv_obj_delete(mboxParent);
+    }
+
   }
 }
 
 
-void checkup()
+void checkup(void)
 {  
-   
+      LV_LOG_USER("Final checks, current on processStep :%d",processStep);
+
+
       checkupParent = lv_obj_class_create_obj(&lv_msgbox_backdrop_class, lv_layer_top());
       lv_obj_class_init_obj(checkupParent);
       lv_obj_remove_flag(checkupParent, LV_OBJ_FLAG_IGNORE_LAYOUT);
@@ -160,8 +234,9 @@ void checkup()
             lv_obj_align(checkupCloseButton, LV_ALIGN_TOP_RIGHT, 7 , -10);
             lv_obj_add_event_cb(checkupCloseButton, event_checkup, LV_EVENT_CLICKED, checkupCloseButton);
             lv_obj_set_style_bg_color(checkupCloseButton, lv_color_hex(GREEN_DARK), LV_PART_MAIN);
-            lv_obj_move_foreground(checkupCloseButton);
-
+            if(processStep > 0){
+              lv_obj_add_state(checkupCloseButton, LV_STATE_DISABLED);            
+            }
 
                   checkupCloseButtonLabel = lv_label_create(checkupCloseButton);         
                   lv_label_set_text(checkupCloseButtonLabel, closePopup_icon); 
@@ -214,7 +289,7 @@ void checkup()
 
 
                           checkupWaterFillStatusIcon = lv_label_create(checkupWaterFillContainer);         
-                          lv_label_set_text(checkupWaterFillStatusIcon, dotStep_Icon); 
+                          lv_label_set_text(checkupWaterFillStatusIcon, checkupStepStatuses[0][stepFillWaterStatus]); 
                           lv_obj_set_style_text_font(checkupWaterFillStatusIcon, &FilMachineFontIcons_15, 0);              
                           lv_obj_align(checkupWaterFillStatusIcon, LV_ALIGN_LEFT_MID, -15, 0);
 
@@ -234,7 +309,7 @@ void checkup()
                   lv_obj_set_style_border_opa(checkupReachTempContainer, LV_OPA_TRANSP, 0);
 
                           checkupReachTempStatusIcon = lv_label_create(checkupReachTempContainer);         
-                          lv_label_set_text(checkupReachTempStatusIcon, arrowStep_Icon); 
+                          lv_label_set_text(checkupReachTempStatusIcon, checkupStepStatuses[0][stepReachTempStatus]); 
                           lv_obj_set_style_text_font(checkupReachTempStatusIcon, &FilMachineFontIcons_15, 0);              
                           lv_obj_align(checkupReachTempStatusIcon, LV_ALIGN_LEFT_MID, -15, 0);
 
@@ -256,7 +331,7 @@ void checkup()
                   lv_obj_set_style_border_opa(checkupTankAndFilmContainer, LV_OPA_TRANSP, 0);
 
                           checkupTankAndFilmStatusIcon = lv_label_create(checkupTankAndFilmContainer);         
-                          lv_label_set_text(checkupTankAndFilmStatusIcon, checkStep_Icon); 
+                          lv_label_set_text(checkupTankAndFilmStatusIcon, checkupStepStatuses[0][stepCheckFilmStatus]); 
                           lv_obj_set_style_text_font(checkupTankAndFilmStatusIcon, &FilMachineFontIcons_15, 0);              
                           lv_obj_align(checkupTankAndFilmStatusIcon, LV_ALIGN_LEFT_MID, -15, 0);
 
@@ -275,7 +350,9 @@ void checkup()
                   lv_obj_add_event_cb(checkupStopStepsButton, event_checkup, LV_EVENT_CLICKED, checkupStopStepsButton);
                   lv_obj_set_style_bg_color(checkupStopStepsButton, lv_color_hex(RED_DARK), LV_PART_MAIN);
                   lv_obj_move_foreground(checkupStopStepsButton);
-
+                  if(processStep == 0){
+                    lv_obj_add_state(checkupStopStepsButton, LV_STATE_DISABLED);            
+                  }
 
                           checkupStopStepsButtonLabel = lv_label_create(checkupStopStepsButton);         
                           lv_label_set_text(checkupStopStepsButtonLabel, checkupStop_text); 
@@ -429,13 +506,14 @@ void checkup()
                         lv_obj_add_event_cb(checkupSelectTankChemistryContainer, event_checkup, LV_EVENT_CLICKED, &activeVolume_index);
 
 
-
                               checkupProcessReadyLabel = lv_label_create(checkupSelectTankChemistryContainer);         
                               lv_label_set_text(checkupProcessReadyLabel, checkupProcessReady_text); 
                               lv_obj_set_width(checkupProcessReadyLabel, 230);
                               lv_obj_set_style_text_font(checkupProcessReadyLabel, &lv_font_montserrat_22, 0);              
                               lv_obj_align(checkupProcessReadyLabel, LV_ALIGN_TOP_LEFT, -10, -8);
 
+                              lowVolumeChemRadioButton = create_radiobutton(checkupSelectTankChemistryContainer, checkupChemistryLowVol_text, -105, 45, 27, &lv_font_montserrat_18, lv_color_hex(GREEN_DARK), lv_palette_main(LV_PALETTE_GREEN));
+                              highVolumeChemRadioButton = create_radiobutton(checkupSelectTankChemistryContainer, checkupChemistryHighVol_text, -10, 45, 27, &lv_font_montserrat_18, lv_color_hex(GREEN_DARK), lv_palette_main(LV_PALETTE_GREEN));
 
                               checkupTankSizeLabel = lv_label_create(checkupSelectTankChemistryContainer);         
                               lv_label_set_text(checkupTankSizeLabel, checkupTankSize_text); 
@@ -463,15 +541,12 @@ void checkup()
                               lv_obj_set_style_text_font(checkupChemistryVolumeLabel, &lv_font_montserrat_18, 0);              
                               lv_obj_align(checkupChemistryVolumeLabel, LV_ALIGN_TOP_MID, 0, 110);
 
-                              lowVolumeChemRadioButton = create_radiobutton(checkupSelectTankChemistryContainer, checkupChemistryLowVol_text, -105, 45, 27, &lv_font_montserrat_18, lv_color_hex(GREEN_DARK), lv_palette_main(LV_PALETTE_GREEN));
-                              highVolumeChemRadioButton = create_radiobutton(checkupSelectTankChemistryContainer, checkupChemistryHighVol_text, -10, 45, 27, &lv_font_montserrat_18, lv_color_hex(GREEN_DARK), lv_palette_main(LV_PALETTE_GREEN));
-
 
 
                         checkupStartButton = lv_button_create(checkupSelectTankChemistryContainer);
                         lv_obj_set_size(checkupStartButton, BUTTON_PROCESS_WIDTH, BUTTON_PROCESS_HEIGHT);
                         lv_obj_align(checkupStartButton, LV_ALIGN_BOTTOM_MID, 0, 10);
-                        lv_obj_add_event_cb(checkupStartButton, event_checkup, LV_EVENT_CLICKED, checkupStartButton);
+                        lv_obj_add_event_cb(checkupStartButton, event_checkup, LV_EVENT_CLICKED, checkupSelectTankChemistryContainer);
                         lv_obj_set_style_bg_color(checkupStartButton, lv_color_hex(GREEN_DARK), LV_PART_MAIN);
                         lv_obj_move_foreground(checkupStartButton);
 
@@ -603,7 +678,7 @@ void checkup()
                   
                                 checkupTankIsPresentContainer = lv_obj_create(checkupFilmRotatingContainer);
                                 lv_obj_remove_flag(checkupTankIsPresentContainer, LV_OBJ_FLAG_SCROLLABLE); 
-                                lv_obj_align(checkupTankIsPresentContainer, LV_ALIGN_CENTER, 0, -50);
+                                lv_obj_align(checkupTankIsPresentContainer, LV_ALIGN_CENTER, 0, -55);
                                 lv_obj_set_size(checkupTankIsPresentContainer, 200, 80); 
                                 //lv_obj_set_style_border_color(checkupTankIsPresentContainer, lv_palette_main(LV_PALETTE_GREEN), 0);
                                 lv_obj_set_style_border_opa(checkupTankIsPresentContainer, LV_OPA_TRANSP, 0);
@@ -619,22 +694,35 @@ void checkup()
                                         lv_obj_align(checkupTankIsPresentValue, LV_ALIGN_CENTER, 0, 20);
                   
 
-                                checkupFilmRotatingContainer = lv_obj_create(checkupFilmRotatingContainer);
-                                lv_obj_remove_flag(checkupFilmRotatingContainer, LV_OBJ_FLAG_SCROLLABLE); 
-                                lv_obj_align(checkupFilmRotatingContainer, LV_ALIGN_CENTER, 0, 60);
-                                lv_obj_set_size(checkupFilmRotatingContainer, 200, 80); 
-                                //lv_obj_set_style_border_color(checkupFilmRotatingContainer, lv_palette_main(LV_PALETTE_GREEN), 0);
-                                lv_obj_set_style_border_opa(checkupFilmRotatingContainer, LV_OPA_TRANSP, 0);
+                                checkupFilmInPositionContainer = lv_obj_create(checkupFilmRotatingContainer);
+                                lv_obj_remove_flag(checkupFilmInPositionContainer, LV_OBJ_FLAG_SCROLLABLE); 
+                                lv_obj_align(checkupFilmInPositionContainer, LV_ALIGN_CENTER, 0, 40);
+                                lv_obj_set_size(checkupFilmInPositionContainer, 200, 80); 
+                                //lv_obj_set_style_border_color(checkupFilmInPositionContainer, lv_palette_main(LV_PALETTE_GREEN), 0);
+                                lv_obj_set_style_border_opa(checkupFilmInPositionContainer, LV_OPA_TRANSP, 0);
 
-                                        checkupFilmRotatingLabel = lv_label_create(checkupFilmRotatingContainer);         
+                                        checkupFilmRotatingLabel = lv_label_create(checkupFilmInPositionContainer);         
                                         lv_label_set_text(checkupFilmRotatingLabel, checkupFilmRotation_text); 
                                         lv_obj_set_style_text_font(checkupFilmRotatingLabel, &lv_font_montserrat_18, 0);              
                                         lv_obj_align(checkupFilmRotatingLabel, LV_ALIGN_CENTER, 0, -15);
 
-                                        checkupFilmRotatingValue = lv_label_create(checkupFilmRotatingContainer);         
+                                        checkupFilmRotatingValue = lv_label_create(checkupFilmInPositionContainer);         
                                         lv_label_set_text(checkupFilmRotatingValue, checkupChecking_text); 
                                         lv_obj_set_style_text_font(checkupFilmRotatingValue, &lv_font_montserrat_24, 0);              
                                         lv_obj_align(checkupFilmRotatingValue, LV_ALIGN_CENTER, 0, 20);
+
+
+                        checkupStartButton = lv_button_create(checkupFilmRotatingContainer);
+                        lv_obj_set_size(checkupStartButton, BUTTON_PROCESS_WIDTH, BUTTON_PROCESS_HEIGHT);
+                        lv_obj_align(checkupStartButton, LV_ALIGN_BOTTOM_MID, 0, 10);
+                        lv_obj_add_event_cb(checkupStartButton, event_checkup, LV_EVENT_CLICKED, checkupFilmRotatingContainer);
+                        lv_obj_set_style_bg_color(checkupStartButton, lv_color_hex(GREEN_DARK), LV_PART_MAIN);
+                        lv_obj_move_foreground(checkupStartButton);
+
+                                checkupStartButtonLabel = lv_label_create(checkupStartButton);         
+                                lv_label_set_text(checkupStartButtonLabel, checkupStart_text); 
+                                lv_obj_set_style_text_font(checkupStartButtonLabel, &lv_font_montserrat_22, 0);              
+                                lv_obj_align(checkupStartButtonLabel, LV_ALIGN_CENTER, 0, 0);
                   }
 
                   if(processStep == 4){

@@ -13,7 +13,6 @@ extern "C" {
 #endif
 
 //ESSENTIAL INCLUDE
-//#include "../definitions.h"
 
 //ACCESSORY INCLUDES
 #include "../resources/splash.c"

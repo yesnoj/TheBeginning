@@ -81,25 +81,25 @@ void event_settingPopupMBox(lv_event_t * e){
   lv_obj_t * data = (lv_obj_t *)lv_event_get_user_data(e);
   
   if(data == tempSensorTuningLabel){
-    messagePopupCreate(messagePopupDetailTitle_text,tempAlertMBox_text, NULL);
+    messagePopupCreate(messagePopupDetailTitle_text,tempAlertMBox_text,NULL,NULL,NULL);
   }
   if(data == filmRotationSpeedLabel){
-    messagePopupCreate(messagePopupDetailTitle_text,filmRotationSpeedAlertMBox_text, NULL);
+    messagePopupCreate(messagePopupDetailTitle_text,filmRotationSpeedAlertMBox_text,NULL,NULL,NULL);
   }
   if(data == filmRotationInverseIntervalLabel){
-    messagePopupCreate(messagePopupDetailTitle_text,rotationInverseIntervalAlertMBox_text, NULL);
+    messagePopupCreate(messagePopupDetailTitle_text,rotationInverseIntervalAlertMBox_text,NULL,NULL,NULL);
   }
   if(data == filmRotationRandomLabel){
-    messagePopupCreate(messagePopupDetailTitle_text,filmRotationRandomAlertMBox_text, NULL);
+    messagePopupCreate(messagePopupDetailTitle_text,filmRotationRandomAlertMBox_text,NULL,NULL,NULL);
   }
   if(data == persistentAlarmLabel){
-    messagePopupCreate(messagePopupDetailTitle_text,soundAlertMBox_text, NULL);
+    messagePopupCreate(messagePopupDetailTitle_text,soundAlertMBox_text,NULL,NULL,NULL);
   }
   if(data == autostartLabel){
-    messagePopupCreate(messagePopupDetailTitle_text,autostartAlertMBox_text, NULL);
+    messagePopupCreate(messagePopupDetailTitle_text,autostartAlertMBox_text,NULL,NULL,NULL);
   }
   if(data == drainFillTimeLabel){
-    messagePopupCreate(messagePopupDetailTitle_text,drainFillTimeAlertMBox_text, NULL);
+    messagePopupCreate(messagePopupDetailTitle_text,drainFillTimeAlertMBox_text,NULL,NULL,NULL);
   }
 }
 
@@ -125,7 +125,7 @@ void event_settings_handler(lv_event_t * e)
 
             *active_id = lv_obj_get_index(act_cb);
 
-            LV_LOG_USER("Selected radio buttons: %d", (int)active_index);
+            LV_LOG_USER("Selected °C or °F: %d", (int)active_index);
        }
     }
 

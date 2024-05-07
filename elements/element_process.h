@@ -44,10 +44,7 @@ static void event_processElement(lv_event_t * e){
 
   if(obj == preferredIcon){
       if(code == LV_EVENT_CLICKED) {   
-        LV_LOG_USER("preferredContainer");
-        //lv_obj_set_style_text_color(preferredIcon, isPreferred ? lv_color_hex(RED) : lv_color_hex(WHITE), LV_PART_MAIN);
-        
-        //lv_obj_set_style_text_color(preferredIcon, lv_color_hex(RED), LV_PART_MAIN);
+        LV_LOG_USER("Process is preferred : %d",isPreferred);
         if(isPreferred == 0){
             lv_obj_set_style_text_color(preferredIcon, lv_color_hex(RED), LV_PART_MAIN);
             isPreferred = 1;
@@ -62,12 +59,12 @@ static void event_processElement(lv_event_t * e){
   if(obj == processElementSummary){
       if(code == LV_EVENT_SHORT_CLICKED) {    
         LV_LOG_USER("Process Element Details");
-        processDetail();
+        //processDetail(processElement); //won't work, cause definition in pages.h. Here we want to call processDetail, but this is not defined, because in page.h is defined after element_process.h
       }
       if(code == LV_EVENT_LONG_PRESSED_REPEAT){
         if(mBoxPopupParent == NULL){
           LV_LOG_USER("Process Element Long Press for popup delete");
-          messagePopupCreate(deletePopupTitle_text,deletePopupBody_text, processElement);
+          messagePopupCreate(deletePopupTitle_text,deletePopupBody_text, deleteButton_text, stepDetailCancel_text, processElement);
         }
       }
   }
@@ -77,14 +74,14 @@ static void event_processElement(lv_event_t * e){
 }
 
 
-void processElementCreate(void){
+void processElementCreate(lv_obj_t * processesReferenceList){
   /*********************
   *    PAGE HEADER
   *********************/
   LV_LOG_USER("Processes Creation");
   
 
-  processElement = lv_obj_create(processesList);
+  processElement = lv_obj_create(processesReferenceList);
   lv_obj_set_pos(processElement, -10, -10 + ((processCounter * 70)));                           
   lv_obj_set_size(processElement, 315, 70);
   lv_obj_remove_flag(processElement, LV_OBJ_FLAG_SCROLLABLE); 

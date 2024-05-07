@@ -99,17 +99,17 @@ static void event_toolsElement(lv_event_t * e){
   }
   if(data == toolsImportLabel){
     if(code == LV_EVENT_CLICKED) {  
-        messagePopupCreate(messagePopupDetailTitle_text,importConfigAndProcessesMBox_text, NULL);
+        messagePopupCreate(messagePopupDetailTitle_text,importConfigAndProcessesMBox_text,NULL, NULL, NULL);
       }
   }
   if(data == toolsExportLabel){
     if(code == LV_EVENT_CLICKED) {  
-    messagePopupCreate(messagePopupDetailTitle_text,exportConfigAndProcessesMBox_text, NULL);
+    messagePopupCreate(messagePopupDetailTitle_text,exportConfigAndProcessesMBox_text, NULL, NULL, NULL);
     }
   }
   if(data == toolCreditButton){
     if(code == LV_EVENT_CLICKED) {  
-    messagePopupCreate(softwareCredits_text,softwareCreditsValue_text, NULL);
+    messagePopupCreate(softwareCredits_text,softwareCreditsValue_text, NULL, NULL, NULL);
     }
   }
 }

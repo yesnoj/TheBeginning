@@ -28,6 +28,7 @@ extern "C" {
 static lv_obj_t * processesLabel;
 static lv_obj_t * iconFilterLabel;
 static lv_obj_t * iconNewProcessLabel;
+static lv_obj_t * processesList;
 
 static void event_processes_style_delete(lv_event_t * e)
 {
@@ -62,7 +63,7 @@ static void event_tabProcesses(lv_event_t * e)
 
   if(obj == newProcessButton){
     if(code == LV_EVENT_CLICKED) {
-      processElementCreate();
+      processDetail(processesList);
       stepCounter = 0;
       LV_LOG_USER("New Process Creation popup");
     }

@@ -8,12 +8,12 @@
 #include "misc/lv_color.h"
 #include "core/lv_obj.h"
 #include "misc/lv_palette.h"
+
+
 /**
  * @file page_stepDetail.h
  *
  */
-
-
 
 #ifndef PAGE_STEPDETAIL_H
 #define PAGE_STEPDETAIL_H
@@ -23,9 +23,7 @@ extern "C" {
 #endif
 
 
-//ESSENTIAL INCLUDE
-
-//ACCESSORY INCLUDES
+/* STEP DETAIL VARIABLES*/
 static lv_obj_t * stepDetailNameContainer;
 static lv_obj_t * stepDetailContainer;
 static lv_obj_t * stepDurationContainer;
@@ -57,6 +55,9 @@ static lv_obj_t * stepTypeDropDownList;
 static lv_style_t dropDownListStyle;
 
 static lv_obj_t * stepsContainer;
+
+
+
 
 static void event_stepDetail(lv_event_t * e)
 {
@@ -107,19 +108,19 @@ static void event_stepDetail(lv_event_t * e)
   if(code == LV_EVENT_VALUE_CHANGED){
     if(obj == stepTypeDropDownList){
       if(lv_dropdown_get_selected(stepTypeDropDownList) == 0){
-          LV_LOG_USER("Selected stepTypeDropDownList chemical_Icon");
-          lv_label_set_text(stepTypeHelpIcon, chemical_Icon);
           stepType = 0;
+          LV_LOG_USER("Selected stepTypeDropDownList chemical_Icon value:%d",stepType);
+          lv_label_set_text(stepTypeHelpIcon, chemical_Icon);
       }
       if(lv_dropdown_get_selected(stepTypeDropDownList) == 1){
-          LV_LOG_USER("Selected stepTypeDropDownList rinse_Icon");
-          lv_label_set_text(stepTypeHelpIcon, rinse_Icon);
           stepType = 1;
+          LV_LOG_USER("Selected stepTypeDropDownList rinse_Icon value:%d",stepType);
+          lv_label_set_text(stepTypeHelpIcon, rinse_Icon);
       }
       if(lv_dropdown_get_selected(stepTypeDropDownList) == 2){
-          LV_LOG_USER("Selected stepTypeDropDownList multiRinse_Icon");
-          lv_label_set_text(stepTypeHelpIcon, multiRinse_Icon);
           stepType = 2;
+          LV_LOG_USER("Selected stepTypeDropDownList multiRinse_Icon value:%d",stepType);
+          lv_label_set_text(stepTypeHelpIcon, multiRinse_Icon);
       }
     }
 
@@ -145,22 +146,14 @@ static void event_stepDetail(lv_event_t * e)
   }
 }
  
-/*
-char stepDetailTitle_text [9] = {"New step"};
-char stepDetailName_text [5] = {"Name"};
-char stepDetailDuration_text [9] = {"Duration"};
-char stepDetailDurationMin_text [4] = {"min"};
-char stepDetailDurationSec_text [4] = {"sec"};
-char stepDetailType_text [4] = {"Type"};
-char stepDetailSource_text [7] = {"Source"};
-char stepDetailDiscardAfter_text [25] = {"Discard after processing"};
-char stepDetailCurrentSourceTemp_text [14] = {"Current temp:"};
-uint8_t discardAfter = 0;
-
-*/
 
 
-void stepDetail(lv_obj_t * referenceStep)
+
+/*********************
+*    STEP DETAIL
+*********************/
+
+static void stepDetail(lv_obj_t * referenceStep)
 {   
 /*********************
   *    PAGE ELEMENTS
@@ -360,7 +353,7 @@ void stepDetail(lv_obj_t * referenceStep)
                   lv_obj_align(stepDiscsardAfterSwitch, LV_ALIGN_LEFT_MID, 140, 0);
                   lv_obj_set_style_bg_color(stepDiscsardAfterSwitch, lv_palette_darken(LV_PALETTE_GREY, 3), LV_STATE_DEFAULT);
                   lv_obj_set_style_bg_color(stepDiscsardAfterSwitch,  lv_palette_main(LV_PALETTE_GREEN), LV_PART_KNOB | LV_STATE_DEFAULT);
-                  lv_obj_set_style_bg_color(stepDiscsardAfterSwitch, lv_color_hex(WHITE) , LV_PART_INDICATOR | LV_STATE_CHECKED);
+                  lv_obj_set_style_bg_color(stepDiscsardAfterSwitch, lv_color_hex(GREEN_DARK) , LV_PART_INDICATOR | LV_STATE_CHECKED);
 
 
 

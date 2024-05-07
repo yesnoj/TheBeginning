@@ -29,12 +29,12 @@ lv_obj_t * mBoxPopupTextContainer;
 lv_obj_t * mBoxPopupTitle;
 lv_obj_t * mBoxPopupText;
 lv_obj_t * mBoxPopupButtonLabel;
-lv_obj_t * mBoxPopupButtonOkLabel;
-lv_obj_t * mBoxPopupButtonCancelLabel; 
+lv_obj_t * mBoxPopupButton1Label;
+lv_obj_t * mBoxPopupButton2Label; 
 
 lv_obj_t * mBoxPopupButtonClose;
-lv_obj_t * mBoxPopupButtonOk;
-lv_obj_t * mBoxPopupButtonCancel;      
+lv_obj_t * mBoxPopupButton1;
+lv_obj_t * mBoxPopupButton2;      
 
 lv_obj_t * parameterReceived;
 
@@ -57,8 +57,8 @@ static void event_messagePopup(lv_event_t * e)
         lv_msgbox_close(mboxCont);
         lv_obj_delete(mboxCont);
     }
-    if(obj == mBoxPopupButtonOk){
-        LV_LOG_USER("Pressed mBoxPopupButtonOk");
+    if(obj == mBoxPopupButton1){
+        LV_LOG_USER("Pressed mBoxPopupButton1");
         if(parameterReceived == processElement || parameterReceived == stepElement){
             LV_LOG_USER("Delete process from long press!");
             lv_style_reset(&style_mBoxPopupTitleLine);
@@ -78,8 +78,8 @@ static void event_messagePopup(lv_event_t * e)
             processDetailParent = NULL;
         }
     }
-    if(obj == mBoxPopupButtonCancel){
-        LV_LOG_USER("Pressed mBoxPopupButtonCancel");
+    if(obj == mBoxPopupButton1){
+        LV_LOG_USER("Pressed mBoxPopupButton1");
         if(parameterReceived == processElement || parameterReceived == processDetailParent || parameterReceived == stepElement){
             LV_LOG_USER("Cancel delete element!");
             lv_style_reset(&style_mBoxPopupTitleLine);
@@ -92,7 +92,7 @@ static void event_messagePopup(lv_event_t * e)
 
 }       
 
-void messagePopupCreate(const char * popupTitleText,const char * popupText,lv_obj_t * whoCallMe){
+void messagePopupCreate(const char * popupTitleText,const char * popupText,const char * textButton1, const char * textButton2, lv_obj_t * whoCallMe){
   /*********************
   *    PAGE HEADER
   *********************/
@@ -158,28 +158,28 @@ void messagePopupCreate(const char * popupTitleText,const char * popupText,lv_ob
             lv_obj_align(mBoxPopupButtonLabel, LV_ALIGN_CENTER, 0, 0);
   }
   else{
-      mBoxPopupButtonOk = lv_button_create(mBoxPopupContainer);
-      lv_obj_set_size(mBoxPopupButtonOk, BUTTON_MBOX_WIDTH, BUTTON_MBOX_HEIGHT);
-      lv_obj_align(mBoxPopupButtonOk, LV_ALIGN_BOTTOM_LEFT, 10 , 10);
-      lv_obj_add_event_cb(mBoxPopupButtonOk, event_messagePopup, LV_EVENT_CLICKED, mBoxPopupButtonOk);
-      lv_obj_set_style_bg_color(mBoxPopupButtonOk, lv_color_hex(RED_DARK), LV_PART_MAIN);
+      mBoxPopupButton1 = lv_button_create(mBoxPopupContainer);
+      lv_obj_set_size(mBoxPopupButton1, BUTTON_MBOX_WIDTH, BUTTON_MBOX_HEIGHT);
+      lv_obj_align(mBoxPopupButton1, LV_ALIGN_BOTTOM_LEFT, 10 , 10);
+      lv_obj_add_event_cb(mBoxPopupButton1, event_messagePopup, LV_EVENT_CLICKED, mBoxPopupButton1);
+      lv_obj_set_style_bg_color(mBoxPopupButton1, lv_color_hex(RED_DARK), LV_PART_MAIN);
 
-          mBoxPopupButtonOkLabel = lv_label_create(mBoxPopupButtonOk);
-          lv_label_set_text(mBoxPopupButtonOkLabel, deleteButton_text);
-          lv_obj_set_style_text_font(mBoxPopupButtonOkLabel, &lv_font_montserrat_24, 0);
-          lv_obj_align(mBoxPopupButtonOkLabel, LV_ALIGN_CENTER, 0, 0);
+          mBoxPopupButton1Label = lv_label_create(mBoxPopupButton1);
+          lv_label_set_text(mBoxPopupButton1Label, textButton1);
+          lv_obj_set_style_text_font(mBoxPopupButton1Label, &lv_font_montserrat_24, 0);
+          lv_obj_align(mBoxPopupButton1Label, LV_ALIGN_CENTER, 0, 0);
 
 
-      mBoxPopupButtonCancel = lv_button_create(mBoxPopupContainer);
-      lv_obj_set_size(mBoxPopupButtonCancel, BUTTON_MBOX_WIDTH, BUTTON_MBOX_HEIGHT);
-      lv_obj_align(mBoxPopupButtonCancel, LV_ALIGN_BOTTOM_RIGHT, - 10 , 10);
-      lv_obj_add_event_cb(mBoxPopupButtonCancel, event_messagePopup, LV_EVENT_CLICKED, mBoxPopupButtonCancel);
-      lv_obj_set_style_bg_color(mBoxPopupButtonCancel, lv_color_hex(GREEN_DARK), LV_PART_MAIN);
+      mBoxPopupButton2 = lv_button_create(mBoxPopupContainer);
+      lv_obj_set_size(mBoxPopupButton2, BUTTON_MBOX_WIDTH, BUTTON_MBOX_HEIGHT);
+      lv_obj_align(mBoxPopupButton2, LV_ALIGN_BOTTOM_RIGHT, - 10 , 10);
+      lv_obj_add_event_cb(mBoxPopupButton2, event_messagePopup, LV_EVENT_CLICKED, mBoxPopupButton2);
+      lv_obj_set_style_bg_color(mBoxPopupButton2, lv_color_hex(GREEN_DARK), LV_PART_MAIN);
 
-            mBoxPopupButtonCancelLabel = lv_label_create(mBoxPopupButtonCancel);
-            lv_label_set_text(mBoxPopupButtonCancelLabel, stepDetailCancel_text);
-            lv_obj_set_style_text_font(mBoxPopupButtonCancelLabel, &lv_font_montserrat_24, 0);
-            lv_obj_align(mBoxPopupButtonCancelLabel, LV_ALIGN_CENTER, 0, 0);
+            mBoxPopupButton2Label = lv_label_create(mBoxPopupButton2);
+            lv_label_set_text(mBoxPopupButton2Label, textButton2);
+            lv_obj_set_style_text_font(mBoxPopupButton2Label, &lv_font_montserrat_24, 0);
+            lv_obj_align(mBoxPopupButton2Label, LV_ALIGN_CENTER, 0, 0);
   }
 }
 
